@@ -12,9 +12,10 @@ import { SettingsPage } from './pages/SettingsPage';
 import { AIChatWidget } from './components/chat/AIChatWidget';
 import { FloatingAIAssistant } from './components/FloatingAIAssistant';
 import { homeData, dealsData, peopleData } from './data/mockData';
+import LandingPage from './landing/LandingPage';
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState('home');
+  const [currentPage, setCurrentPage] = useState('landing');
   const [deals, setDeals] = useState(dealsData.deals);
   const [people, setPeople] = useState(peopleData.people);
   const [showAIChat, setShowAIChat] = useState(false);
@@ -59,6 +60,22 @@ export default function App() {
       prev.map(item => (item.id === itemId ? { ...item, status: 'completed' } : item))
     );
   };
+
+  // Render landing page without dashboard chrome
+  if (currentPage === 'landing') {
+    return (
+      <div className="min-h-screen bg-black">
+        <LandingPage />
+        {/* Entry button to dashboard */}
+        <button
+          onClick={() => setCurrentPage('home')}
+          className="fixed bottom-8 right-8 z-50 px-6 py-3 bg-white/10 backdrop-blur-md text-white rounded-full border border-white/20 hover:bg-white/20 transition-colors"
+        >
+          Enter Dashboard →
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className={`min-h-screen text-base ${theme === 'light' ? 'bg-gray-50 text-gray-900' : 'bg-neutral-950 text-neutral-100'}`}>
