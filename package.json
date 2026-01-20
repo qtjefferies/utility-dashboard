@@ -1,0 +1,41 @@
+{
+    "name": "athlete-dashboard",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "tsc && vite build",
+        "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+        "preview": "vite preview",
+        "db:migrate": "tsx src/data/migrate.ts",
+        "db:status": "tsx src/data/migrate.ts status",
+        "db:rollback": "tsx src/data/migrate.ts rollback",
+        "db:seed": "psql -d athlete_dashboard -f src/data/migrations/002_seed_data.sql",
+        "db:reset": "dropdb athlete_dashboard && createdb athlete_dashboard && npm run db:migrate"
+    },
+    "dependencies": {
+        "lucide-react": "^0.263.1",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "recharts": "^3.6.0"
+    },
+    "devDependencies": {
+        "@types/pg": "^8.11.0",
+        "@types/react": "^18.2.15",
+        "@types/react-dom": "^18.2.7",
+        "@typescript-eslint/eslint-plugin": "^6.0.0",
+        "@typescript-eslint/parser": "^6.0.0",
+        "@vitejs/plugin-react": "^4.0.3",
+        "autoprefixer": "^10.4.14",
+        "eslint": "^8.45.0",
+        "eslint-plugin-react-hooks": "^4.6.0",
+        "eslint-plugin-react-refresh": "^0.4.3",
+        "pg": "^8.11.3",
+        "postcss": "^8.4.27",
+        "tailwindcss": "^3.3.3",
+        "tsx": "^4.7.0",
+        "typescript": "^5.0.2",
+        "vite": "^4.4.5"
+    }
+}
