@@ -1,21 +1,29 @@
 import React from 'react';
 import { Home, Briefcase, Building2, DollarSign, CheckSquare, Users, Settings, Sparkles, TrendingUp } from 'lucide-react';
 import { NavItem } from './NavItem';
+import { homeData } from '../../data/mockData';
 
 interface SidebarProps {
   currentPage: string;
   onNavigate: (page: string) => void;
   onAIClick?: () => void;
   theme?: 'light' | 'dark';
+  complianceItems?: Array<{ status: string; priority?: string }>;
 }
 
-export function Sidebar({ currentPage, onNavigate, onAIClick, theme = 'dark' }: SidebarProps) {
+export function Sidebar({ currentPage, onNavigate, onAIClick, theme = 'dark', complianceItems }: SidebarProps) {
+  // Calculate compliance badge count (only overdue items)
+  const items = complianceItems ?? homeData.compliance.items ?? [];
+  const complianceCount = items.filter(
+    item => item.status === 'overdue'
+  ).length || 0;
+
   const navItems = [
     { id: 'home', icon: Home, label: "Home" },
     { id: 'deals', icon: Briefcase, label: "Deals & Income" },
     { id: 'taxes', icon: Building2, label: "Taxes & Vault" },
     { id: 'cashflow', icon: DollarSign, label: "Cash Flow" },
-    { id: 'compliance', icon: CheckSquare, label: "Compliance" },
+    { id: 'compliance', icon: CheckSquare, label: "Compliance", badge: complianceCount },
     { id: 'market', icon: TrendingUp, label: "My Future Money" },
     { id: 'people', icon: Users, label: "My People" },
     { id: 'settings', icon: Settings, label: "Settings" },
@@ -43,28 +51,10 @@ export function Sidebar({ currentPage, onNavigate, onAIClick, theme = 'dark' }: 
             active={currentPage === item.id}
             onClick={() => onNavigate(item.id)}
             theme={theme}
+            badge={item.badge}
           />
         ))}
       </nav>
-
-      <button
-        onClick={onAIClick}
-        className={`mt-auto flex items-center gap-3 text-base px-4 py-3 rounded-xl cursor-pointer transition-all w-full ${
-          theme === 'light' ? 'hover:bg-gray-100' : 'hover:bg-neutral-800'
-        }`}
-        style={{
-          background: theme === 'light' 
-            ? 'linear-gradient(to right, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1))'
-            : 'linear-gradient(to right, rgba(16, 185, 129, 0.2), rgba(59, 130, 246, 0.2))',
-          border: theme === 'light'
-            ? '1px solid rgba(16, 185, 129, 0.3)'
-            : '1px solid rgba(16, 185, 129, 0.4)',
-          color: theme === 'light' ? '#059669' : '#a7f3d0'
-        }}
-      >
-        <Sparkles className="h-5 w-5" />
-        <span>AI Assistant</span>
-      </button>
     </aside>
   );
 }

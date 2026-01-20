@@ -45,7 +45,54 @@ export const homeData = {
   ],
   "compliance": {
     "dealsReported": 3,
-    "status": "all_clear"
+    "status": "action_required",
+    "items": [
+      {
+        "id": "comp_001",
+        "title": "Q1 NIL Report Due",
+        "description": "Submit quarterly NIL earnings report to compliance office",
+        "dueDate": "2025-03-20",
+        "status": "overdue",
+        "priority": "high",
+        "category": "reporting"
+      },
+      {
+        "id": "comp_002",
+        "title": "Auto Dealership Contract",
+        "description": "Upload signed contract for review",
+        "dueDate": "2025-03-25",
+        "status": "pending",
+        "priority": "high",
+        "category": "contracts"
+      },
+      {
+        "id": "comp_003",
+        "title": "NIL Education Module",
+        "description": "Complete annual compliance training",
+        "dueDate": "2025-04-01",
+        "status": "pending",
+        "priority": "medium",
+        "category": "education"
+      },
+      {
+        "id": "comp_004",
+        "title": "Financial Disclosure",
+        "description": "Update financial disclosure form",
+        "dueDate": "2025-03-18",
+        "status": "overdue",
+        "priority": "high",
+        "category": "disclosure"
+      },
+      {
+        "id": "comp_005",
+        "title": "Social Media Post Approval",
+        "description": "Get pre-approval for upcoming brand posts",
+        "dueDate": "2025-03-28",
+        "status": "completed",
+        "priority": "medium",
+        "category": "approval"
+      }
+    ]
   },
   "aiInsight": {
     "message": "You're on track to hit $65K by year-end. Based on your current pace, consider setting up quarterly tax payments to avoid a large year-end bill.",

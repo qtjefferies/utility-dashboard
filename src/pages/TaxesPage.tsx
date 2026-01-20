@@ -3,29 +3,40 @@ import { DollarSign } from 'lucide-react';
 import { taxesData } from '../data/mockData';
 import { fmtMoney } from '../utils/formatters';
 
-export function TaxesPage() {
-  const [selectedRate, setSelectedRate] = useState(0.28);
-  const [progressWidth, setProgressWidth] = useState(0);
+interface TaxesPageProps {
+  theme?: 'light' | 'dark';
+  taxRate?: number;
+  onTaxRateChange?: (rate: number) => void;
+}
 
-  // Animate progress bar on mount
+export function TaxesPage({ theme = 'dark', taxRate: propTaxRate = 0.28, onTaxRateChange }: TaxesPageProps) {
+  const [selectedRate, setSelectedRate] = useState(propTaxRate);
+  const [progressWidth, setProgressWidth] = useState(0);
+  
+  // Update local state when prop changes
+  React.useEffect(() => {
+    setSelectedRate(propTaxRate);
+  }, [propTaxRate]);
+  
+  // Notify parent when rate changes
+  const handleRateChange = (newRate: number) => {
+    setSelectedRate(newRate);
+    onTaxRateChange?.(newRate);
+  };
+
+  // Animate progress bar on mount with smooth transition
   useEffect(() => {
     const targetProgress = taxesData.taxVault.progressPercentage;
-    const duration = 1000; // 1 second
-    const steps = 60;
-    const increment = targetProgress / steps;
-    let currentStep = 0;
+    
+    // Start at 0
+    setProgressWidth(0);
+    
+    // After a small delay, animate to target with CSS transition
+    const timer = setTimeout(() => {
+      setProgressWidth(targetProgress);
+    }, 50);
 
-    const timer = setInterval(() => {
-      currentStep++;
-      if (currentStep >= steps) {
-        setProgressWidth(targetProgress);
-        clearInterval(timer);
-      } else {
-        setProgressWidth(increment * currentStep);
-      }
-    }, duration / steps);
-
-    return () => clearInterval(timer);
+    return () => clearTimeout(timer);
   }, []);
 
   const getExplanation = () => {
@@ -57,6 +68,37 @@ export function TaxesPage() {
         <p className="mt-1 text-base text-neutral-400">Manage your tax savings strategy</p>
       </div>
 
+      {/* Quarterly Payments KPIs */}
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 mb-4">
+        <div className="flex items-center justify-between mb-4">
+          <div className="text-lg font-semibold">Quarterly Payments</div>
+          <button className="text-neutral-500 hover:text-neutral-300">⋮</button>
+        </div>
+
+        <div className="grid grid-cols-4 gap-3">
+          {taxesData.quarterlyPayments.map((payment) => (
+            <div
+              key={payment.id}
+              className="rounded-lg border border-neutral-800 bg-neutral-950/40 p-4"
+            >
+              <div className="text-xs text-neutral-500 mb-1.5">{payment.quarter}</div>
+              <div className="text-xl font-semibold mb-1.5">{fmtMoney(payment.amount)}</div>
+              <div className={`text-xs ${
+                payment.status === "paid"
+                  ? "text-emerald-400"
+                  : payment.status === "due"
+                  ? "text-amber-400"
+                  : "text-neutral-500"
+              }`}>
+                {payment.status === "paid" && `Paid ${payment.dueDate}`}
+                {payment.status === "due" && `Due ${payment.dueDate}`}
+                {payment.status === "estimated" && `Est. ${payment.dueDate}`}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-6 flex flex-col items-center justify-center">
           <div className="h-16 w-16 rounded-full bg-emerald-600/10 border-2 border-emerald-600/30 flex items-center justify-center mb-3">
@@ -73,8 +115,11 @@ export function TaxesPage() {
             </div>
             <div className="h-2 bg-neutral-800 rounded-full overflow-hidden">
               <div
-                className="h-full bg-emerald-500 rounded-full transition-all duration-100"
-                style={{ width: `${progressWidth}%` }}
+                className="h-full bg-emerald-500 rounded-full transition-all ease-linear"
+                style={{ 
+                  width: `${progressWidth}%`,
+                  transitionDuration: '1500ms'
+                }}
               />
             </div>
             <p className="text-xs text-neutral-500 mt-1.5 text-center">{taxesData.taxVault.onTrackMessage}</p>
@@ -99,7 +144,7 @@ export function TaxesPage() {
                 min={taxesData.strategy.minRate * 100}
                 max={taxesData.strategy.maxRate * 100}
                 value={selectedRate * 100}
-                onChange={(e) => setSelectedRate(parseFloat(e.target.value) / 100)}
+                onChange={(e) => handleRateChange(parseFloat(e.target.value) / 100)}
                 className="w-full h-2 bg-neutral-800 rounded-lg appearance-none cursor-pointer slider"
                 style={{
                   background: `linear-gradient(to right, #10b981 0%, #10b981 ${((selectedRate - taxesData.strategy.minRate) / (taxesData.strategy.maxRate - taxesData.strategy.minRate)) * 100}%, #404040 ${((selectedRate - taxesData.strategy.minRate) / (taxesData.strategy.maxRate - taxesData.strategy.minRate)) * 100}%, #404040 100%)`
@@ -156,36 +201,6 @@ export function TaxesPage() {
               <li>• You're saving: {explanation.status}</li>
             </ul>
           </div>
-        </div>
-      </div>
-
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-4">
-        <div className="flex items-center justify-between mb-4">
-          <div className="text-lg font-semibold">Quarterly Payments</div>
-          <button className="text-neutral-500 hover:text-neutral-300">⋮</button>
-        </div>
-
-        <div className="grid grid-cols-4 gap-3">
-          {taxesData.quarterlyPayments.map((payment) => (
-            <div
-              key={payment.id}
-              className="rounded-lg border border-neutral-800 bg-neutral-950/40 p-4"
-            >
-              <div className="text-xs text-neutral-500 mb-1.5">{payment.quarter}</div>
-              <div className="text-xl font-semibold mb-1.5">{fmtMoney(payment.amount)}</div>
-              <div className={`text-xs ${
-                payment.status === "paid"
-                  ? "text-emerald-400"
-                  : payment.status === "due"
-                  ? "text-amber-400"
-                  : "text-neutral-500"
-              }`}>
-                {payment.status === "paid" && `Paid ${payment.dueDate}`}
-                {payment.status === "due" && `Due ${payment.dueDate}`}
-                {payment.status === "estimated" && `Est. ${payment.dueDate}`}
-              </div>
-            </div>
-          ))}
         </div>
       </div>
     </div>

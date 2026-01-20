@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Home, Briefcase, Building2, DollarSign, CheckSquare, Users, Settings, Sparkles, Filter, Plus, X, Edit2, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine, ComposedChart } from 'recharts';
 import { AIChatModal } from '../components/modals/AIChatModal';
+import { ObligationsCalendarModal } from '../components/modals/ObligationsCalendarModal';
 import { homeData, dealsData } from '../data/mockData';
 
 // Add custom styles for flip card and dial gauge
@@ -49,10 +50,12 @@ const fmtMoney = (val: number) => {
 
 interface HomePageProps {
   theme?: 'light' | 'dark';
+  onAIClick?: (initialMessage?: string) => void;
 }
 
-export function HomePage({ theme = 'dark' }: HomePageProps) {
+export function HomePage({ theme = 'dark', onAIClick }: HomePageProps) {
   const [timeFilter, setTimeFilter] = useState('90d');
+  const [showObligationsModal, setShowObligationsModal] = useState(false);
 
   // Calculate active deals from dealsData
   const activeDealsCount = dealsData.deals.filter(d => d.status === 'active').length;
@@ -118,8 +121,8 @@ export function HomePage({ theme = 'dark' }: HomePageProps) {
     </ResponsiveContainer>
   ), [cashPositionData, timeFilter, financialGoal]);
 
-  // Calculate goal progress (no animation)
-  const goalProgress = (cashPositionData[cashPositionData.length - 1].cash / financialGoal) * 100;
+  // Calculate goal progress (no animation) - using totalEarned from KPIs
+  const goalProgress = (homeData.kpis.totalEarned / financialGoal) * 100;
 
   // Get time-based greeting
   const getGreeting = () => {
@@ -209,15 +212,25 @@ export function HomePage({ theme = 'dark' }: HomePageProps) {
                   );
                 })}
 
-                {/* Background arc (grey) */}
+                {/* Background arc (grey with rounded ends) */}
                 <path
                   d="M 35 195 A 165 165 0 0 1 365 195"
                   fill="none"
                   stroke={theme === 'light' ? '#e5e7eb' : '#262626'}
                   strokeWidth="30"
+                  strokeLinecap="round"
                 />
 
-                {/* Progress arc (emerald) */}
+                {/* Progress arc (emerald with glow) */}
+                <defs>
+                  <filter id="glow">
+                    <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                    <feMerge>
+                      <feMergeNode in="coloredBlur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
                 <path
                   d={`M 35 195 A 165 165 0 ${goalProgress > 50 ? '1' : '0'} 1 ${
                     200 + 165 * Math.cos((180 + (goalProgress / 100 * 180)) * Math.PI / 180)
@@ -227,7 +240,11 @@ export function HomePage({ theme = 'dark' }: HomePageProps) {
                   fill="none"
                   stroke="#10b981"
                   strokeWidth="30"
-                  strokeLinecap="butt"
+                  strokeLinecap="round"
+                  filter="url(#glow)"
+                  style={{ 
+                    filter: 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.6)) drop-shadow(0 0 16px rgba(16, 185, 129, 0.4))'
+                  }}
                 />
 
                 {/* Percentage labels - positioned inside the dial */}
@@ -239,16 +256,25 @@ export function HomePage({ theme = 'dark' }: HomePageProps) {
 
               {/* Center text */}
               <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ top: '70px' }}>
-                <div className="text-5xl font-bold text-emerald-400">{fmtMoney(cashPositionData[cashPositionData.length - 1].cash)}</div>
+                <div className="text-5xl font-bold text-emerald-400">{fmtMoney(homeData.kpis.totalEarned)}</div>
                 <div className={`text-sm ${textSecondary} mt-1`}>of {fmtMoney(financialGoal)}</div>
               </div>
             </div>
 
             {/* Status text */}
             <div className="text-center text-neutral-400">
-              <div className="text-base font-medium mb-1">Building momentum</div>
+              <div className="text-base font-medium mb-1">
+                {goalProgress < 33 ? 'Building momentum' : goalProgress < 66 ? 'Making progress' : goalProgress < 90 ? 'Strong momentum' : 'Almost there!'}
+              </div>
               <div className="text-sm">
-                On pace to reach ~{fmtMoney(Math.round((cashPositionData[cashPositionData.length - 1].cash / 75) * 365))} by year-end
+                {(() => {
+                  // More conservative projection: monthly rate instead of daily
+                  const now = new Date();
+                  const monthsPassed = now.getMonth() + (now.getDate() / 30); // Fractional months (e.g., Jan 20 = 0.67 months)
+                  const monthlyRate = homeData.kpis.totalEarned / monthsPassed;
+                  const yearEndProjection = Math.round(monthlyRate * 12);
+                  return `On pace to reach ~${fmtMoney(yearEndProjection)} by year-end`;
+                })()}
               </div>
             </div>
 
@@ -261,7 +287,10 @@ export function HomePage({ theme = 'dark' }: HomePageProps) {
 
         <div className="flex flex-col gap-3">
           {/* Upcoming & Obligations */}
-          <div className={`flex-1 rounded-xl border ${cardBorder} ${cardBg} p-4 flex flex-col`}>
+          <div 
+            onClick={() => setShowObligationsModal(true)}
+            className={`flex-1 rounded-xl border ${cardBorder} ${cardBg} p-4 flex flex-col cursor-pointer hover:border-emerald-500/50 transition-all`}
+          >
             <div className="flex items-center justify-between mb-4">
               <h2 className={`text-lg font-semibold ${textPrimary}`}>Upcoming & Obligations</h2>
             </div>
@@ -274,7 +303,7 @@ export function HomePage({ theme = 'dark' }: HomePageProps) {
               ))}
             </div>
             <button className="mt-3 text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
-              📋 View all
+              📋 View calendar
             </button>
           </div>
 
@@ -285,9 +314,32 @@ export function HomePage({ theme = 'dark' }: HomePageProps) {
               <h3 className={`text-sm font-semibold ${theme === 'light' ? 'text-blue-900' : 'text-emerald-400'}`}>AI Insight</h3>
             </div>
             <p className={`text-sm ${theme === 'light' ? 'text-blue-800' : 'text-neutral-300'} mb-3`}>
-              You're on track to hit $65K by year-end. Based on your current pace, consider setting up quarterly tax payments to avoid a large year-end bill.
+              {(() => {
+                const currentEarned = homeData.kpis.totalEarned;
+                const goal = financialGoal;
+                const progressPercent = (currentEarned / goal) * 100;
+                
+                // More conservative projection: assume current monthly rate continues
+                const now = new Date();
+                const monthsPassed = now.getMonth() + (now.getDate() / 30); // Fractional months
+                const monthlyRate = currentEarned / monthsPassed;
+                const conservativeProjection = Math.round(monthlyRate * 12);
+                
+                if (progressPercent >= 80) {
+                  return `You're ${Math.round(progressPercent)}% toward your $${(goal / 1000)}K goal! Keep up the momentum to finish strong.`;
+                } else if (progressPercent >= 50) {
+                  return `On track to reach ~$${Math.round(conservativeProjection / 1000)}K by year-end. You're ${Math.round(progressPercent)}% toward your $${(goal / 1000)}K goal.`;
+                } else {
+                  return `Based on current pace, you're projected to earn ~$${Math.round(conservativeProjection / 1000)}K this year. Consider setting up quarterly tax payments to stay ahead.`;
+                }
+              })()}
             </p>
-            <button className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 mt-auto">
+            <button 
+              onClick={() => onAIClick?.(
+                `Tell me more about quarterly tax payments. Based on my current earnings of ${fmtMoney(homeData.kpis.totalEarned)}, what should I be paying quarterly to avoid penalties and a large year-end bill?`
+              )}
+              className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 mt-auto cursor-pointer transition-colors"
+            >
               Learn more about quarterly payments →
             </button>
           </div>
@@ -321,13 +373,13 @@ export function HomePage({ theme = 'dark' }: HomePageProps) {
           </div>
         </div>
 
-        <div className={`rounded-xl border ${cardBorder} ${cardBg} p-4`}>
+        <div className={`rounded-xl border ${cardBorder} ${cardBg} p-4 flex flex-col`}>
           <h2 className={`text-lg font-semibold mb-4 ${textPrimary}`}>Quick Actions</h2>
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2 flex-1">
             {homeData.quickActions?.map((action: any, idx: number) => (
               <button
                 key={idx}
-                className={`w-full py-2.5 px-4 rounded-lg text-sm font-medium transition-colors ${
+                className={`w-full flex-1 px-4 rounded-lg text-sm font-medium transition-colors ${
                   action.variant === 'primary'
                     ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
                     : `${theme === 'light' ? 'bg-gray-100 hover:bg-gray-200 text-gray-900' : 'bg-neutral-800 hover:bg-neutral-700 text-neutral-100'}`
@@ -339,6 +391,42 @@ export function HomePage({ theme = 'dark' }: HomePageProps) {
           </div>
         </div>
       </div>
+
+      {/* Obligations Calendar Modal */}
+      {showObligationsModal && (
+        <ObligationsCalendarModal
+          onClose={() => setShowObligationsModal(false)}
+          obligations={[
+            // Tax obligations
+            { id: '1', title: 'Q1 Estimated Tax Payment', date: '2026-04-15', type: 'tax', priority: 'high', description: 'Federal estimated tax payment due' },
+            { id: '2', title: 'Q2 Estimated Tax Payment', date: '2026-06-15', type: 'tax', priority: 'high', description: 'Federal estimated tax payment due' },
+            { id: '3', title: 'Q3 Estimated Tax Payment', date: '2026-09-15', type: 'tax', priority: 'high', description: 'Federal estimated tax payment due' },
+            
+            // Deal obligations from homeData
+            ...homeData.upcoming?.map((item: any, idx: number) => ({
+              id: `upcoming-${idx}`,
+              title: item.label,
+              date: item.date,
+              type: item.type || 'deliverable',
+              priority: item.priority || 'medium',
+              description: item.description || ''
+            })) || [],
+            
+            // Compliance items
+            { id: 'c1', title: 'NIL Deal Reporting', date: '2026-02-01', type: 'compliance', priority: 'high', description: 'Report all NIL deals to compliance office' },
+            { id: 'c2', title: 'Annual Financial Review', date: '2026-12-31', type: 'compliance', priority: 'medium', description: 'Complete annual financial compliance review' },
+            
+            // Brand deal deliverables
+            { id: 'd1', title: 'Social Media Post - Nike', date: '2026-02-15', type: 'deliverable', priority: 'high', description: '3 Instagram posts with product tags' },
+            { id: 'd2', title: 'Appearance - Local Auto Dealer', date: '2026-03-10', type: 'deliverable', priority: 'medium', description: '2-hour appearance at dealership' },
+            { id: 'd3', title: 'Content Delivery - Energy Drink', date: '2026-03-20', type: 'deliverable', priority: 'high', description: 'YouTube video featuring product' },
+            
+            // Payment dates
+            { id: 'p1', title: 'Nike Deal Payment', date: '2026-02-28', type: 'payment', priority: 'medium', description: 'Expected payment: $5,000' },
+            { id: 'p2', title: 'Autograph Session Payment', date: '2026-03-15', type: 'payment', priority: 'medium', description: 'Expected payment: $2,500' },
+          ]}
+        />
+      )}
 
     </div>
   );

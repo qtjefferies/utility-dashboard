@@ -20,6 +20,8 @@ export default function App() {
   const [showAIChat, setShowAIChat] = useState(false);
   const [aiInitialMessage, setAiInitialMessage] = useState<string | undefined>(undefined);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [taxRate, setTaxRate] = useState(0.28); // Default 28% tax rate
+  const [complianceItems, setComplianceItems] = useState(homeData.compliance.items);
 
   const updateDeal = (updatedDeal: any) => {
     setDeals(prev => prev.map(d => d.id === updatedDeal.id ? updatedDeal : d));
@@ -52,16 +54,34 @@ export default function App() {
     setShowAIChat(true);
   };
 
+  const markComplianceComplete = (itemId: string) => {
+    setComplianceItems(prev =>
+      prev.map(item => (item.id === itemId ? { ...item, status: 'completed' } : item))
+    );
+  };
+
   return (
     <div className={`min-h-screen text-base ${theme === 'light' ? 'bg-gray-50 text-gray-900' : 'bg-neutral-950 text-neutral-100'}`}>
-      <Sidebar currentPage={currentPage} onNavigate={setCurrentPage} onAIClick={() => handleAIClick()} theme={theme} />
+      <Sidebar
+        currentPage={currentPage}
+        onNavigate={setCurrentPage}
+        onAIClick={() => handleAIClick()}
+        theme={theme}
+        complianceItems={complianceItems}
+      />
       <main className={`ml-72 min-h-screen ${theme === 'light' ? 'bg-gray-50' : 'bg-neutral-950'}`}>
         <TopBar athlete={homeData.athlete} theme={theme} />
-        {currentPage === 'home' && <HomePage theme={theme} />}
+        {currentPage === 'home' && <HomePage theme={theme} onAIClick={handleAIClick} />}
         {currentPage === 'deals' && <DealsPage deals={deals} onUpdateDeal={updateDeal} onDeleteDeal={deleteDeal} onAddDeal={addDeal} theme={theme} />}
-        {currentPage === 'taxes' && <TaxesPage theme={theme} />}
+        {currentPage === 'taxes' && <TaxesPage theme={theme} taxRate={taxRate} onTaxRateChange={setTaxRate} />}
         {currentPage === 'cashflow' && <CashFlowPage theme={theme} />}
-        {currentPage === 'compliance' && <CompliancePage theme={theme} />}
+        {currentPage === 'compliance' && (
+          <CompliancePage
+            theme={theme}
+            complianceItems={complianceItems}
+            onMarkComplete={markComplianceComplete}
+          />
+        )}
         {currentPage === 'market' && <MarketTrendsPage onAIClick={handleAIClick} theme={theme} />}
         {currentPage === 'people' && <MyPeoplePage people={people} onUpdatePerson={updatePerson} onDeletePerson={deletePerson} onAddPerson={addPerson} theme={theme} />}
         {currentPage === 'settings' && <SettingsPage deals={deals} theme={theme} onThemeChange={setTheme} />}
@@ -80,7 +100,7 @@ export default function App() {
             totalEarned: homeData.kpis.totalEarned,
             taxVault: homeData.kpis.taxVault,
             available: homeData.kpis.available,
-            taxRate: homeData.kpis.taxRate,
+            taxRate: taxRate, // Use the selected tax rate from state
             recentTransactions: homeData.recentActivity ? homeData.recentActivity.slice(0, 10).map((tx: any) => ({
               description: tx.description,
               amount: tx.amount,
@@ -102,7 +122,7 @@ export default function App() {
           totalEarned: homeData.kpis.totalEarned,
           taxVault: homeData.kpis.taxVault,
           available: homeData.kpis.available,
-          taxRate: homeData.kpis.taxRate,
+          taxRate: taxRate, // Use the selected tax rate from state
           recentTransactions: homeData.recentActivity ? homeData.recentActivity.slice(0, 10).map((tx: any) => ({
             description: tx.label || tx.description || 'Transaction',
             amount: tx.amount,

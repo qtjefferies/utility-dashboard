@@ -30,7 +30,7 @@ export function FloatingAIAssistant({ userData }: FloatingAIAssistantProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: 'assistant',
-      content: `Hi ${userData.name.split(' ')[0]}! I'm your AI assistant. I can help you with NIL deals, tax questions, financial planning, and more. What would you like to know?`
+      content: `What's up ${userData.name.split(' ')[0]}! I'm Util, your AI assistant. I can help you with NIL deals, tax questions, financial planning, and more. What would you like to know?`
     }
   ]);
   const [input, setInput] = useState('');
@@ -121,14 +121,68 @@ export function FloatingAIAssistant({ userData }: FloatingAIAssistantProps) {
 
   return (
     <>
-      {/* Floating Button */}
+      {/* Floating Button - Util Character */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 text-white shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 z-40 flex items-center justify-center"
-          style={{ animation: 'fadeIn 0.3s ease-in' }}
+          className="fixed bottom-6 right-6 h-16 w-16 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 z-40 flex items-center justify-center overflow-hidden group"
+          style={{ animation: 'fadeIn 0.3s ease-in, float 3s ease-in-out infinite' }}
         >
-          <Sparkles className="h-6 w-6" />
+          {/* Util Character - Animated */}
+          <svg viewBox="0 0 100 100" className="w-14 h-14">
+            {/* Neck */}
+            <rect x="45" y="72" width="10" height="8" fill="#8B6F47" />
+            
+            {/* Head - rounder shape */}
+            <ellipse cx="50" cy="52" rx="18" ry="20" fill="#8B6F47" />
+            
+            {/* Ears */}
+            <ellipse cx="32" cy="52" rx="3" ry="5" fill="#6B5639" />
+            <ellipse cx="68" cy="52" rx="3" ry="5" fill="#6B5639" />
+            
+            {/* Box Fade Hair - tall flat top */}
+            <rect x="32" y="22" width="36" height="16" fill="#1a0f0a" rx="1" />
+            {/* Top highlight */}
+            <rect x="32" y="22" width="36" height="2" fill="#2a1f1a" />
+            {/* Side fades */}
+            <rect x="31" y="38" width="4" height="8" fill="#1a0f0a" opacity="0.8" />
+            <rect x="65" y="38" width="4" height="8" fill="#1a0f0a" opacity="0.8" />
+            {/* Hair texture lines */}
+            <line x1="38" y1="22" x2="38" y2="25" stroke="#0a0a0a" strokeWidth="0.5" opacity="0.3" />
+            <line x1="44" y1="22" x2="44" y2="25" stroke="#0a0a0a" strokeWidth="0.5" opacity="0.3" />
+            <line x1="50" y1="22" x2="50" y2="25" stroke="#0a0a0a" strokeWidth="0.5" opacity="0.3" />
+            <line x1="56" y1="22" x2="56" y2="25" stroke="#0a0a0a" strokeWidth="0.5" opacity="0.3" />
+            <line x1="62" y1="22" x2="62" y2="25" stroke="#0a0a0a" strokeWidth="0.5" opacity="0.3" />
+            
+            {/* Glasses frame */}
+            <rect x="36" y="47" width="11" height="9" fill="none" stroke="#1a1a1a" strokeWidth="2" rx="2" />
+            <rect x="53" y="47" width="11" height="9" fill="none" stroke="#1a1a1a" strokeWidth="2" rx="2" />
+            {/* Bridge */}
+            <line x1="47" y1="51" x2="53" y2="51" stroke="#1a1a1a" strokeWidth="2" />
+            {/* Temples */}
+            <line x1="36" y1="51" x2="32" y2="51" stroke="#1a1a1a" strokeWidth="1.5" />
+            <line x1="64" y1="51" x2="68" y2="51" stroke="#1a1a1a" strokeWidth="1.5" />
+            
+            {/* Eyes behind glasses */}
+            <ellipse cx="41.5" cy="51" rx="3" ry="3.5" fill="white" className="group-hover:animate-pulse" />
+            <ellipse cx="58.5" cy="51" rx="3" ry="3.5" fill="white" className="group-hover:animate-pulse" />
+            <circle cx="42" cy="51" r="2" fill="#1a1a1a" />
+            <circle cx="59" cy="51" r="2" fill="#1a1a1a" />
+            {/* Eye highlights */}
+            <circle cx="42.5" cy="50.5" r="0.8" fill="white" opacity="0.8" />
+            <circle cx="59.5" cy="50.5" r="0.8" fill="white" opacity="0.8" />
+            
+            {/* Nose */}
+            <ellipse cx="50" cy="57" rx="2.5" ry="3" fill="#6B5639" />
+            
+            {/* Friendly smile */}
+            <path d="M 40 62 Q 50 67 60 62" stroke="#4a3728" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+            <path d="M 41 62.5 Q 50 66 59 62.5" fill="#8B6F47" stroke="none" />
+            
+            {/* Sparkle effect */}
+            <circle cx="75" cy="28" r="2" fill="white" opacity="0.8" className="animate-ping" style={{ animationDuration: '2s' }} />
+            <circle cx="25" cy="40" r="1.5" fill="white" opacity="0.6" className="animate-ping" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }} />
+          </svg>
         </button>
       )}
 
@@ -141,11 +195,36 @@ export function FloatingAIAssistant({ userData }: FloatingAIAssistantProps) {
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-800 flex-shrink-0">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center">
-                <Sparkles className="h-5 w-5 text-white" />
+              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center overflow-hidden">
+                <svg viewBox="0 0 100 100" className="w-9 h-9">
+                  {/* Head */}
+                  <ellipse cx="50" cy="52" rx="18" ry="20" fill="#8B6F47" />
+                  
+                  {/* Ears */}
+                  <ellipse cx="32" cy="52" rx="3" ry="5" fill="#6B5639" />
+                  <ellipse cx="68" cy="52" rx="3" ry="5" fill="#6B5639" />
+                  
+                  {/* Box Fade Hair */}
+                  <rect x="32" y="22" width="36" height="16" fill="#1a0f0a" rx="1" />
+                  <rect x="32" y="22" width="36" height="2" fill="#2a1f1a" />
+                  
+                  {/* Glasses */}
+                  <rect x="36" y="47" width="11" height="9" fill="none" stroke="#1a1a1a" strokeWidth="2" rx="2" />
+                  <rect x="53" y="47" width="11" height="9" fill="none" stroke="#1a1a1a" strokeWidth="2" rx="2" />
+                  <line x1="47" y1="51" x2="53" y2="51" stroke="#1a1a1a" strokeWidth="2" />
+                  
+                  {/* Eyes */}
+                  <ellipse cx="41.5" cy="51" rx="3" ry="3.5" fill="white" />
+                  <ellipse cx="58.5" cy="51" rx="3" ry="3.5" fill="white" />
+                  <circle cx="42" cy="51" r="2" fill="#1a1a1a" />
+                  <circle cx="59" cy="51" r="2" fill="#1a1a1a" />
+                  
+                  {/* Smile */}
+                  <path d="M 40 62 Q 50 67 60 62" stroke="#4a3728" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+                </svg>
               </div>
               <div>
-                <h2 className="text-lg font-semibold">AI Assistant</h2>
+                <h2 className="text-lg font-semibold">Util</h2>
                 <p className="text-xs text-neutral-400">
                   {ollamaAvailable === false ? (
                     <span className="text-amber-400">⚠ Ollama not detected</span>
@@ -255,6 +334,10 @@ export function FloatingAIAssistant({ userData }: FloatingAIAssistantProps) {
         @keyframes slideUp {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
         }
       `}</style>
     </>
