@@ -53,7 +53,7 @@ export function SettingsPage({ deals, theme = 'dark', onThemeChange }: SettingsP
     }
   };
 
-  const cardClass = theme === 'light' ? 'rounded-2xl border border-gray-200 bg-white p-5 shadow-sm' : 'rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5';
+  const cardClass = theme === 'light' ? 'rounded-2xl border border-emerald-100 bg-emerald-50 p-5 shadow-sm' : 'rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5';
   const textPrimary = theme === 'light' ? 'text-gray-900' : 'text-neutral-100';
   const textSecondary = theme === 'light' ? 'text-gray-600' : 'text-neutral-400';
   const textTertiary = theme === 'light' ? 'text-gray-500' : 'text-neutral-500';
@@ -106,7 +106,7 @@ export function SettingsPage({ deals, theme = 'dark', onThemeChange }: SettingsP
         </div>
 
         {/* Account & Security */}
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
+        <div className={cardClass}>
           <h2 className="text-xl font-semibold mb-4">Account & Security</h2>
           <div className="space-y-3">
             <div className="flex items-center justify-between pb-3 border-b border-neutral-800">
@@ -169,7 +169,7 @@ export function SettingsPage({ deals, theme = 'dark', onThemeChange }: SettingsP
         </div>
 
         {/* Notifications */}
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
+        <div className={cardClass}>
           <h2 className="text-xl font-semibold mb-4">Notifications</h2>
           <div className="space-y-3">
             <div className="grid grid-cols-4 gap-3 pb-2 border-b border-neutral-800">
@@ -237,7 +237,7 @@ export function SettingsPage({ deals, theme = 'dark', onThemeChange }: SettingsP
         </div>
 
         {/* Financial Settings */}
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
+        <div className={cardClass}>
           <h2 className="text-xl font-semibold mb-4">Financial Settings</h2>
           <div className="space-y-4">
             <div className="pb-4 border-b border-neutral-800">
@@ -322,7 +322,7 @@ export function SettingsPage({ deals, theme = 'dark', onThemeChange }: SettingsP
         </div>
 
         {/* Connected Accounts */}
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
+        <div className={cardClass}>
           <h2 className="text-xl font-semibold mb-4">Connected Accounts</h2>
           <div className="space-y-2">
             {[
@@ -365,7 +365,7 @@ export function SettingsPage({ deals, theme = 'dark', onThemeChange }: SettingsP
         </div>
 
         {/* Preferences */}
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
+        <div className={cardClass}>
           <h2 className="text-xl font-semibold mb-4">Preferences</h2>
           <div className="space-y-3">
             <div className="flex items-center justify-between pb-3 border-b border-neutral-800">
@@ -438,7 +438,7 @@ export function SettingsPage({ deals, theme = 'dark', onThemeChange }: SettingsP
         </div>
 
         {/* Data & Privacy */}
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5">
+        <div className={cardClass}>
           <h2 className="text-xl font-semibold mb-3">Data & Privacy</h2>
           <div className="space-y-3">
             <div className="flex items-center justify-between pb-3 border-b border-neutral-800">

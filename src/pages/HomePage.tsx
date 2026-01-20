@@ -56,6 +56,8 @@ interface HomePageProps {
 export function HomePage({ theme = 'dark', onAIClick }: HomePageProps) {
   const [timeFilter, setTimeFilter] = useState('90d');
   const [showObligationsModal, setShowObligationsModal] = useState(false);
+  const [dialProgress, setDialProgress] = useState(0);
+  const [animatedEarnings, setAnimatedEarnings] = useState(0);
 
   // Calculate active deals from dealsData
   const activeDealsCount = dealsData.deals.filter(d => d.status === 'active').length;
@@ -121,8 +123,37 @@ export function HomePage({ theme = 'dark', onAIClick }: HomePageProps) {
     </ResponsiveContainer>
   ), [cashPositionData, timeFilter, financialGoal]);
 
-  // Calculate goal progress (no animation) - using totalEarned from KPIs
+  // Calculate goal progress - using totalEarned from KPIs
   const goalProgress = (homeData.kpis.totalEarned / financialGoal) * 100;
+
+  // Animate dial and earnings on mount with smooth easing
+  useEffect(() => {
+    setDialProgress(0);
+    setAnimatedEarnings(0);
+    const targetEarnings = homeData.kpis.totalEarned;
+    const duration = 1500; // 1.5 seconds
+    const startTime = Date.now();
+
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // Ease-out cubic for smooth deceleration
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDialProgress(eased * goalProgress);
+      setAnimatedEarnings(Math.round(eased * targetEarnings));
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    const timer = setTimeout(() => {
+      requestAnimationFrame(animate);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [goalProgress]);
 
   // Get time-based greeting
   const getGreeting = () => {
@@ -133,8 +164,8 @@ export function HomePage({ theme = 'dark', onAIClick }: HomePageProps) {
   };
 
   // Theme-based styling
-  const cardBg = theme === 'light' ? 'bg-white shadow-sm' : 'bg-neutral-900/40';
-  const cardBorder = theme === 'light' ? 'border-gray-200' : 'border-neutral-800';
+  const cardBg = theme === 'light' ? 'bg-emerald-50 shadow-sm' : 'bg-neutral-900/40';
+  const cardBorder = theme === 'light' ? 'border-emerald-100' : 'border-neutral-800';
   const textPrimary = theme === 'light' ? 'text-gray-900' : 'text-neutral-100';
   const textSecondary = theme === 'light' ? 'text-gray-500' : 'text-neutral-400';
   const goalCardBg = theme === 'light' ? 'bg-emerald-50 shadow-sm' : 'bg-neutral-900/40';
@@ -232,17 +263,17 @@ export function HomePage({ theme = 'dark', onAIClick }: HomePageProps) {
                   </filter>
                 </defs>
                 <path
-                  d={`M 35 195 A 165 165 0 ${goalProgress > 50 ? '1' : '0'} 1 ${
-                    200 + 165 * Math.cos((180 + (goalProgress / 100 * 180)) * Math.PI / 180)
+                  d={`M 35 195 A 165 165 0 ${dialProgress > 50 ? '1' : '0'} 1 ${
+                    200 + 165 * Math.cos((180 + (dialProgress / 100 * 180)) * Math.PI / 180)
                   } ${
-                    195 + 165 * Math.sin((180 + (goalProgress / 100 * 180)) * Math.PI / 180)
+                    195 + 165 * Math.sin((180 + (dialProgress / 100 * 180)) * Math.PI / 180)
                   }`}
                   fill="none"
                   stroke="#10b981"
                   strokeWidth="30"
                   strokeLinecap="round"
                   filter="url(#glow)"
-                  style={{ 
+                  style={{
                     filter: 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.6)) drop-shadow(0 0 16px rgba(16, 185, 129, 0.4))'
                   }}
                 />
@@ -256,7 +287,7 @@ export function HomePage({ theme = 'dark', onAIClick }: HomePageProps) {
 
               {/* Center text */}
               <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ top: '70px' }}>
-                <div className="text-5xl font-bold text-emerald-400">{fmtMoney(homeData.kpis.totalEarned)}</div>
+                <div className="text-5xl font-bold text-emerald-400">{fmtMoney(animatedEarnings)}</div>
                 <div className={`text-sm ${textSecondary} mt-1`}>of {fmtMoney(financialGoal)}</div>
               </div>
             </div>
