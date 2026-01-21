@@ -4,7 +4,11 @@ import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Cart
 import { cashFlowData, categoryColorPalette } from '../data/mockData';
 import { fmtMoney, getActivityDotColor } from '../utils/formatters';
 
-export function CashFlowPage() {
+interface CashFlowPageProps {
+  theme?: 'light' | 'dark';
+}
+
+export function CashFlowPage({ theme = 'dark' }: CashFlowPageProps) {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [expenseDrilldownCategory, setExpenseDrilldownCategory] = useState<string | null>(null);
@@ -210,38 +214,58 @@ export function CashFlowPage() {
       })
     : [];
 
+  // Theme-aware styles
+  const cardBg = theme === 'light' ? 'bg-emerald-50 border-emerald-100' : 'bg-neutral-900/40 border-neutral-800';
+  const textPrimary = theme === 'light' ? 'text-gray-900' : 'text-neutral-100';
+  const textSecondary = theme === 'light' ? 'text-gray-600' : 'text-neutral-400';
+  const textMuted = theme === 'light' ? 'text-gray-500' : 'text-neutral-500';
+  const buttonStyle = theme === 'light'
+    ? 'bg-white hover:bg-emerald-50 border-emerald-200 text-gray-700'
+    : 'bg-neutral-900 hover:bg-neutral-800 border-neutral-800 text-neutral-300';
+  const dropdownBg = theme === 'light'
+    ? 'bg-white border-emerald-200'
+    : 'bg-neutral-900 border-neutral-800';
+  const inputStyle = theme === 'light'
+    ? 'bg-emerald-50 border-emerald-200 text-gray-900'
+    : 'bg-neutral-950 border-neutral-800 text-neutral-100';
+  const labelStyle = theme === 'light' ? 'text-gray-700' : 'text-neutral-300';
+  const chartGridColor = theme === 'light' ? '#d1fae5' : '#404040';
+  const chartAxisColor = theme === 'light' ? '#6b7280' : '#737373';
+  const tooltipBg = theme === 'light' ? '#ffffff' : '#171717';
+  const tooltipBorder = theme === 'light' ? '#d1fae5' : '#404040';
+
   return (
     <div className="px-8 py-6">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h1 className="text-3xl font-semibold">Cash Flow</h1>
-          <p className="mt-1 text-base text-neutral-400">Track your income, expenses, and net cash flow</p>
+          <h1 className={`text-3xl font-semibold ${textPrimary}`}>Cash Flow</h1>
+          <p className={`mt-1 text-base ${textSecondary}`}>Track your income, expenses, and net cash flow</p>
         </div>
         
         {/* Filters Button */}
         <div className="relative">
-          <button 
+          <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 px-4 py-2 rounded-lg text-sm border border-neutral-800 relative"
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm border relative ${buttonStyle}`}
           >
             <Filter className="h-4 w-4" />
             Filters
             {activeFiltersCount > 0 && (
-              <span className="absolute -top-1 -right-1 h-5 w-5 bg-emerald-600 rounded-full flex items-center justify-center text-xs font-semibold">
+              <span className="absolute -top-1 -right-1 h-5 w-5 bg-emerald-600 rounded-full flex items-center justify-center text-xs font-semibold text-white">
                 {activeFiltersCount}
               </span>
             )}
           </button>
 
           {showFilters && (
-            <div className="absolute right-0 top-full mt-2 w-96 bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl z-50">
+            <div className={`absolute right-0 top-full mt-2 w-96 border rounded-xl shadow-2xl z-50 ${dropdownBg}`}>
               <div className="p-6 space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">Filters</h3>
+                  <h3 className={`text-lg font-semibold ${textPrimary}`}>Filters</h3>
                   {activeFiltersCount > 0 && (
-                    <button 
+                    <button
                       onClick={clearFilters}
-                      className="text-sm text-emerald-400 hover:text-emerald-300"
+                      className="text-sm text-emerald-600 hover:text-emerald-500"
                     >
                       Clear all
                     </button>
@@ -250,13 +274,13 @@ export function CashFlowPage() {
 
                 {/* Date Range Filter */}
                 <div>
-                  <label className="block text-sm font-medium text-neutral-300 mb-2">
+                  <label className={`block text-sm font-medium ${labelStyle} mb-2`}>
                     Date Range
                   </label>
                   <select
                     value={filters.dateRange}
                     onChange={(e) => setFilters(prev => ({ ...prev, dateRange: e.target.value as any }))}
-                    className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-neutral-100 focus:outline-none focus:border-emerald-600"
+                    className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-600 ${inputStyle}`}
                   >
                     <option value="all">All Time</option>
                     <option value="this_month">This Month</option>
@@ -264,21 +288,21 @@ export function CashFlowPage() {
                     <option value="last_3_months">Last 3 Months</option>
                     <option value="custom">Custom Range</option>
                   </select>
-                  
+
                   {filters.dateRange === 'custom' && (
                     <div className="grid grid-cols-2 gap-3 mt-3">
                       <input
                         type="date"
                         value={filters.customStartDate}
                         onChange={(e) => setFilters(prev => ({ ...prev, customStartDate: e.target.value }))}
-                        className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-neutral-100 focus:outline-none focus:border-emerald-600"
+                        className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-600 ${inputStyle}`}
                         placeholder="Start date"
                       />
                       <input
                         type="date"
                         value={filters.customEndDate}
                         onChange={(e) => setFilters(prev => ({ ...prev, customEndDate: e.target.value }))}
-                        className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-neutral-100 focus:outline-none focus:border-emerald-600"
+                        className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-600 ${inputStyle}`}
                         placeholder="End date"
                       />
                     </div>
@@ -287,13 +311,13 @@ export function CashFlowPage() {
 
                 {/* Transaction Type Filter */}
                 <div>
-                  <label className="block text-sm font-medium text-neutral-300 mb-2">
+                  <label className={`block text-sm font-medium ${labelStyle} mb-2`}>
                     Transaction Type
                   </label>
                   <select
                     value={filters.transactionType}
                     onChange={(e) => setFilters(prev => ({ ...prev, transactionType: e.target.value as any }))}
-                    className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-neutral-100 focus:outline-none focus:border-emerald-600"
+                    className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-600 ${inputStyle}`}
                   >
                     <option value="all">All Types</option>
                     <option value="income">Income Only</option>
@@ -303,7 +327,7 @@ export function CashFlowPage() {
 
                 {/* Category Filter */}
                 <div>
-                  <label className="block text-sm font-medium text-neutral-300 mb-2">
+                  <label className={`block text-sm font-medium ${labelStyle} mb-2`}>
                     Categories
                   </label>
                   <div className="space-y-2 max-h-40 overflow-y-auto">
@@ -313,9 +337,11 @@ export function CashFlowPage() {
                           type="checkbox"
                           checked={filters.categories.includes(category)}
                           onChange={() => toggleCategory(category)}
-                          className="w-4 h-4 rounded border-neutral-700 bg-neutral-950 text-emerald-600 focus:ring-emerald-600 focus:ring-offset-0"
+                          className={`w-4 h-4 rounded text-emerald-600 focus:ring-emerald-600 focus:ring-offset-0 ${
+                            theme === 'light' ? 'border-emerald-300 bg-white' : 'border-neutral-700 bg-neutral-950'
+                          }`}
                         />
-                        <span className="text-sm text-neutral-300">{category}</span>
+                        <span className={`text-sm ${labelStyle}`}>{category}</span>
                       </label>
                     ))}
                   </div>
@@ -323,13 +349,13 @@ export function CashFlowPage() {
 
                 {/* Source Filter */}
                 <div>
-                  <label className="block text-sm font-medium text-neutral-300 mb-2">
+                  <label className={`block text-sm font-medium ${labelStyle} mb-2`}>
                     Source
                   </label>
                   <select
                     value={filters.source}
                     onChange={(e) => setFilters(prev => ({ ...prev, source: e.target.value as any }))}
-                    className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-neutral-100 focus:outline-none focus:border-emerald-600"
+                    className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-600 ${inputStyle}`}
                   >
                     <option value="all">All Sources</option>
                     <option value="plaid">Bank (Plaid)</option>
@@ -337,8 +363,8 @@ export function CashFlowPage() {
                   </select>
                 </div>
 
-                <div className="pt-4 border-t border-neutral-800">
-                  <div className="text-sm text-neutral-400">
+                <div className={`pt-4 border-t ${theme === 'light' ? 'border-emerald-200' : 'border-neutral-800'}`}>
+                  <div className={`text-sm ${textSecondary}`}>
                     Showing {filteredTransactions.length} transactions
                   </div>
                 </div>
@@ -350,29 +376,29 @@ export function CashFlowPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-4 mb-6">
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-4">
-          <div className="text-xs text-neutral-400 mb-1">Total Income</div>
-          <div className="text-2xl font-semibold text-emerald-400">{fmtMoney(filteredSummary.totalIncome)}</div>
+        <div className={`rounded-xl border ${cardBg} p-4`}>
+          <div className={`text-xs ${textSecondary} mb-1`}>Total Income</div>
+          <div className="text-2xl font-semibold text-emerald-500">{fmtMoney(filteredSummary.totalIncome)}</div>
         </div>
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-4">
-          <div className="text-xs text-neutral-400 mb-1">Total Expenses</div>
-          <div className="text-2xl font-semibold text-red-400">{fmtMoney(filteredSummary.totalExpenses)}</div>
+        <div className={`rounded-xl border ${cardBg} p-4`}>
+          <div className={`text-xs ${textSecondary} mb-1`}>Total Expenses</div>
+          <div className="text-2xl font-semibold text-red-500">{fmtMoney(filteredSummary.totalExpenses)}</div>
         </div>
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-4">
-          <div className="text-xs text-neutral-400 mb-1">Net Cash Flow</div>
-          <div className="text-2xl font-semibold">{fmtMoney(filteredSummary.netCashFlow)}</div>
+        <div className={`rounded-xl border ${cardBg} p-4`}>
+          <div className={`text-xs ${textSecondary} mb-1`}>Net Cash Flow</div>
+          <div className={`text-2xl font-semibold ${textPrimary}`}>{fmtMoney(filteredSummary.netCashFlow)}</div>
         </div>
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-4">
-          <div className="text-xs text-neutral-400 mb-1">Taxes Saved</div>
-          <div className="text-2xl font-semibold text-blue-400">{fmtMoney(filteredSummary.taxesSaved)}</div>
+        <div className={`rounded-xl border ${cardBg} p-4`}>
+          <div className={`text-xs ${textSecondary} mb-1`}>Taxes Saved</div>
+          <div className="text-2xl font-semibold text-blue-500">{fmtMoney(filteredSummary.taxesSaved)}</div>
         </div>
       </div>
 
       {/* Charts Row */}
       <div className="grid grid-cols-2 gap-4 mb-4 mt-8" style={{ gridAutoRows: '1fr' }}>
         {/* Income by Source */}
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 flex flex-col min-h-0">
-          <h2 className="text-lg font-semibold mb-3">Money Coming In (Income)</h2>
+        <div className={`rounded-xl border ${cardBg} p-4 flex flex-col min-h-0`}>
+          <h2 className={`text-lg font-semibold mb-3 ${textPrimary}`}>Money Coming In (Income)</h2>
           {filteredIncomeBySource.length > 0 ? (
             <div className="flex items-center gap-6 flex-1 min-h-0">
               {/* Donut Chart */}
@@ -400,12 +426,12 @@ export function CashFlowPage() {
                         if (active && payload && payload.length) {
                           return (
                             <div style={{
-                              backgroundColor: '#171717',
-                              border: '1px solid #404040',
+                              backgroundColor: tooltipBg,
+                              border: `1px solid ${tooltipBorder}`,
                               borderRadius: '8px',
                               padding: '8px 12px',
                               fontSize: '12px',
-                              color: '#ffffff'
+                              color: theme === 'light' ? '#111827' : '#ffffff'
                             }}>
                               <div style={{ fontWeight: '600', marginBottom: '4px' }}>
                                 {payload[0].name}
@@ -437,11 +463,11 @@ export function CashFlowPage() {
                               className="h-3.5 w-3.5 rounded-full flex-shrink-0"
                               style={{ backgroundColor: source.color }}
                             />
-                            <span className="text-sm font-medium text-neutral-200 truncate">{source.name}</span>
+                            <span className={`text-sm font-medium truncate ${textPrimary}`}>{source.name}</span>
                           </div>
-                          <span className="text-sm font-semibold text-neutral-300 ml-3">{percentage}%</span>
+                          <span className={`text-sm font-semibold ml-3 ${textSecondary}`}>{percentage}%</span>
                         </div>
-                        <div className="h-2 bg-neutral-800 rounded-full overflow-hidden">
+                        <div className={`h-2 rounded-full overflow-hidden ${theme === 'light' ? 'bg-emerald-100' : 'bg-neutral-800'}`}>
                           <div
                             className="h-full rounded-full transition-all"
                             style={{
@@ -457,19 +483,19 @@ export function CashFlowPage() {
               </div>
             </div>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-neutral-500 text-sm">
+            <div className={`flex-1 flex items-center justify-center text-sm ${textMuted}`}>
               No income data for selected filters
             </div>
           )}
           {filteredIncomeBySource.length > 0 && (
-            <p className="text-xs text-neutral-500 mt-3 text-center">Click the chart to see transaction details</p>
+            <p className={`text-xs ${textMuted} mt-3 text-center`}>Click the chart to see transaction details</p>
           )}
         </div>
 
         {/* Expenses by Category */}
-        <div className={`rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 flex flex-col min-h-0 ${expenseDrilldownCategory ? 'pb-8' : ''}`}>
+        <div className={`rounded-xl border ${cardBg} p-4 flex flex-col min-h-0 ${expenseDrilldownCategory ? 'pb-8' : ''}`}>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">
+            <h2 className={`text-lg font-semibold ${textPrimary}`}>
               {expenseDrilldownCategory ? `${expenseDrilldownCategory} Expenses` : 'Money Going Out (Expenses)'}
             </h2>
             {expenseDrilldownCategory && (
@@ -488,21 +514,21 @@ export function CashFlowPage() {
                   data={expenseChartData}
                   margin={{ top: 5, right: 10, left: 5, bottom: expenseDrilldownCategory ? 45 : 5 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#404040" />
+                  <CartesianGrid strokeDasharray="3 3" stroke={chartGridColor} />
                   <XAxis
                     dataKey="name"
-                    stroke="#737373"
+                    stroke={chartAxisColor}
                     style={{ fontSize: expenseDrilldownCategory ? '10px' : '11px' }}
                     interval={0}
                     angle={expenseDrilldownCategory ? -45 : 0}
                     textAnchor={expenseDrilldownCategory ? "end" : "middle"}
                     height={expenseDrilldownCategory ? 70 : 30}
                   />
-                  <YAxis stroke="#737373" tickFormatter={(value) => `$${value.toLocaleString()}`} style={{ fontSize: '11px' }} />
+                  <YAxis stroke={chartAxisColor} tickFormatter={(value) => `$${value.toLocaleString()}`} style={{ fontSize: '11px' }} />
                   <Tooltip
-                    contentStyle={{ backgroundColor: '#171717', border: '1px solid #404040', borderRadius: '8px', fontSize: '12px', color: '#ffffff' }}
-                    itemStyle={{ color: '#ffffff' }}
-                    labelStyle={{ color: '#ffffff' }}
+                    contentStyle={{ backgroundColor: tooltipBg, border: `1px solid ${tooltipBorder}`, borderRadius: '8px', fontSize: '12px', color: theme === 'light' ? '#111827' : '#ffffff' }}
+                    itemStyle={{ color: theme === 'light' ? '#111827' : '#ffffff' }}
+                    labelStyle={{ color: theme === 'light' ? '#111827' : '#ffffff' }}
                     formatter={(value: any) => [`$${value.toLocaleString()}`, 'Amount']}
                     labelFormatter={(label: string) => {
                       // Show full name in tooltip if available
@@ -528,11 +554,11 @@ export function CashFlowPage() {
                 </BarChart>
               </ResponsiveContainer>
               {!expenseDrilldownCategory && (
-                <p className="text-xs text-neutral-500 mt-3 text-center">Click a bar to drill down into individual expenses</p>
+                <p className={`text-xs ${textMuted} mt-3 text-center`}>Click a bar to drill down into individual expenses</p>
               )}
             </div>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-neutral-500 text-sm">
+            <div className={`flex-1 flex items-center justify-center text-sm ${textMuted}`}>
               No expense data for selected filters
             </div>
           )}
@@ -540,10 +566,10 @@ export function CashFlowPage() {
       </div>
 
       {/* Recent Transactions - Full Width */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-4">
+      <div className={`rounded-xl border ${cardBg} p-4`}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Recent Transactions</h2>
-          <button className="text-xs text-emerald-400 hover:text-emerald-300">View all</button>
+          <h2 className={`text-lg font-semibold ${textPrimary}`}>Recent Transactions</h2>
+          <button className="text-xs text-emerald-600 hover:text-emerald-500">View all</button>
         </div>
         {filteredTransactions.length > 0 ? (
           <div className="grid grid-cols-2 gap-x-8 gap-y-3">
@@ -553,15 +579,15 @@ export function CashFlowPage() {
               const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
               return (
-                <div key={tx.id} className="flex items-center justify-between pb-3 border-b border-neutral-800">
+                <div key={tx.id} className={`flex items-center justify-between pb-3 border-b ${theme === 'light' ? 'border-emerald-100' : 'border-neutral-800'}`}>
                   <div className="flex items-start gap-2.5">
                     <span className={`mt-1 h-2 w-2 rounded-full ${getActivityDotColor(tx.type)}`} />
                     <div>
-                      <div className="text-xs font-medium text-neutral-100">{tx.description}</div>
-                      <div className="text-xs text-neutral-500">{tx.category} • {formattedDate}</div>
+                      <div className={`text-xs font-medium ${textPrimary}`}>{tx.description}</div>
+                      <div className={`text-xs ${textMuted}`}>{tx.category} • {formattedDate}</div>
                     </div>
                   </div>
-                  <div className={`text-sm font-semibold ${tx.amount >= 0 ? "text-emerald-400" : "text-neutral-300"}`}>
+                  <div className={`text-sm font-semibold ${tx.amount >= 0 ? "text-emerald-500" : textSecondary}`}>
                     {tx.amount >= 0 ? `+${fmtMoney(tx.amount)}` : fmtMoney(tx.amount)}
                   </div>
                 </div>
@@ -569,7 +595,7 @@ export function CashFlowPage() {
             })}
           </div>
         ) : (
-          <div className="h-[180px] flex items-center justify-center text-neutral-500 text-sm">
+          <div className={`h-[180px] flex items-center justify-center text-sm ${textMuted}`}>
             No transactions for selected filters
           </div>
         )}
@@ -582,17 +608,21 @@ export function CashFlowPage() {
             className="fixed inset-0 bg-black/60 z-50"
             onClick={() => setSelectedCategory(null)}
           />
-          <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl z-50 max-h-[80vh] overflow-hidden flex flex-col">
-            <div className="p-6 border-b border-neutral-800 flex items-center justify-between">
+          <div className={`fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl rounded-xl shadow-2xl z-50 max-h-[80vh] overflow-hidden flex flex-col ${
+            theme === 'light' ? 'bg-white border border-emerald-200' : 'bg-neutral-900 border border-neutral-800'
+          }`}>
+            <div className={`p-6 border-b flex items-center justify-between ${
+              theme === 'light' ? 'border-emerald-100' : 'border-neutral-800'
+            }`}>
               <div>
-                <h3 className="text-xl font-semibold">{selectedCategory} Transactions</h3>
-                <p className="text-sm text-neutral-400 mt-1">
+                <h3 className={`text-xl font-semibold ${textPrimary}`}>{selectedCategory} Transactions</h3>
+                <p className={`text-sm mt-1 ${textSecondary}`}>
                   {categoryTransactions.length} transaction{categoryTransactions.length !== 1 ? 's' : ''} • Total: {fmtMoney(categoryTransactions.reduce((sum, t) => sum + t.amount, 0))}
                 </p>
               </div>
               <button
                 onClick={() => setSelectedCategory(null)}
-                className="text-neutral-400 hover:text-neutral-100 text-2xl leading-none"
+                className={`text-2xl leading-none ${theme === 'light' ? 'text-gray-400 hover:text-gray-700' : 'text-neutral-400 hover:text-neutral-100'}`}
               >
                 ×
               </button>
@@ -605,15 +635,17 @@ export function CashFlowPage() {
                     const formattedDate = `${txDate.toLocaleDateString('en-US', { month: 'short' })} ${txDate.getDate()}`;
 
                     return (
-                      <div key={idx} className="flex items-center justify-between p-3 bg-neutral-950/50 rounded-lg border border-neutral-800">
+                      <div key={idx} className={`flex items-center justify-between p-3 rounded-lg border ${
+                        theme === 'light' ? 'bg-emerald-50/50 border-emerald-100' : 'bg-neutral-950/50 border-neutral-800'
+                      }`}>
                         <div className="flex items-center gap-3">
                           <span className={`h-2 w-2 rounded-full ${getActivityDotColor(tx.type)}`} />
                           <div>
-                            <div className="text-sm font-medium text-neutral-100">{tx.description}</div>
-                            <div className="text-xs text-neutral-500">{tx.category} • {formattedDate}</div>
+                            <div className={`text-sm font-medium ${textPrimary}`}>{tx.description}</div>
+                            <div className={`text-xs ${textMuted}`}>{tx.category} • {formattedDate}</div>
                           </div>
                         </div>
-                        <div className={`text-base font-semibold ${tx.amount >= 0 ? "text-emerald-400" : "text-neutral-300"}`}>
+                        <div className={`text-base font-semibold ${tx.amount >= 0 ? "text-emerald-500" : textSecondary}`}>
                           {tx.amount >= 0 ? `+${fmtMoney(tx.amount)}` : fmtMoney(tx.amount)}
                         </div>
                       </div>
@@ -621,7 +653,7 @@ export function CashFlowPage() {
                   })}
                 </div>
               ) : (
-                <div className="py-12 text-center text-neutral-500">
+                <div className={`py-12 text-center ${textMuted}`}>
                   No transactions found
                 </div>
               )}

@@ -16,8 +16,16 @@ interface CompliancePageProps {
   onMarkComplete: (itemId: string) => void;
 }
 
-export function CompliancePage({ complianceItems, onMarkComplete }: CompliancePageProps) {
+export function CompliancePage({ theme = 'dark', complianceItems, onMarkComplete }: CompliancePageProps) {
   const [isItemsExpanded, setIsItemsExpanded] = useState(false);
+
+  // Theme-aware styles
+  const cardBg = theme === 'light' ? 'bg-emerald-50 border-emerald-100' : 'bg-neutral-900/40 border-neutral-800';
+  const innerCardBg = theme === 'light' ? 'bg-white border-emerald-100' : 'bg-neutral-950/50 border-neutral-800';
+  const textPrimary = theme === 'light' ? 'text-gray-900' : 'text-neutral-100';
+  const textSecondary = theme === 'light' ? 'text-gray-600' : 'text-neutral-400';
+  const textMuted = theme === 'light' ? 'text-gray-500' : 'text-neutral-500';
+  const iconBg = theme === 'light' ? 'bg-neutral-100' : 'bg-neutral-800';
 
   // Count items by status
   const overdueCount = complianceItems?.filter(item => item.status === 'overdue').length || 0;
@@ -40,8 +48,8 @@ export function CompliancePage({ complianceItems, onMarkComplete }: CompliancePa
     <div className="px-8 py-6">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-semibold">Compliance</h1>
-        <p className="mt-1 text-base text-neutral-400">Stay compliant with NCAA and university regulations</p>
+        <h1 className={`text-3xl font-semibold ${textPrimary}`}>Compliance</h1>
+        <p className={`mt-1 text-base ${textSecondary}`}>Stay compliant with NCAA and university regulations</p>
       </div>
 
       {/* Status Banner */}
@@ -62,8 +70,8 @@ export function CompliancePage({ complianceItems, onMarkComplete }: CompliancePa
             }`}>
               {isCompliant ? 'All Clear!' : 'Action Required'}
             </h2>
-            <p className="text-neutral-300">
-              {isCompliant 
+            <p className={theme === 'light' ? 'text-gray-700' : 'text-neutral-300'}>
+              {isCompliant
                 ? 'You are fully compliant with all NCAA and university NIL regulations. Keep up the great work!'
                 : 'You have pending compliance items that need your attention. Please review and complete them below.'}
             </p>
@@ -74,27 +82,27 @@ export function CompliancePage({ complianceItems, onMarkComplete }: CompliancePa
       {/* KPIs Row - Full Width */}
       <div className="mb-6">
         <div className="grid grid-cols-3 gap-4">
-            <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-4">
+            <div className={`rounded-xl border ${cardBg} p-4`}>
               <div className="flex items-center gap-3 mb-2">
                 <div className="h-10 w-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                  <FileText className="h-5 w-5 text-emerald-400" />
+                  <FileText className="h-5 w-5 text-emerald-500" />
                 </div>
                 <div>
-                  <div className="text-xs text-neutral-400">Deals Reported</div>
-                  <div className="text-2xl font-semibold">{homeData.compliance.dealsReported}</div>
+                  <div className={`text-xs ${textSecondary}`}>Deals Reported</div>
+                  <div className={`text-2xl font-semibold ${textPrimary}`}>{homeData.compliance.dealsReported}</div>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-4">
+            <div className={`rounded-xl border ${cardBg} p-4`}>
               <div className="flex items-center gap-3 mb-2">
                 <div className="h-10 w-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                  <Shield className="h-5 w-5 text-blue-400" />
+                  <Shield className="h-5 w-5 text-blue-500" />
                 </div>
                 <div>
-                  <div className="text-xs text-neutral-400">Compliance Score</div>
+                  <div className={`text-xs ${textSecondary}`}>Compliance Score</div>
                   <div className={`text-2xl font-semibold ${
-                    complianceScore === 100 ? 'text-emerald-400' : complianceScore >= 50 ? 'text-amber-400' : 'text-red-400'
+                    complianceScore === 100 ? 'text-emerald-500' : complianceScore >= 50 ? 'text-amber-500' : 'text-red-500'
                   }`}>
                     {complianceScore}%
                   </div>
@@ -102,14 +110,14 @@ export function CompliancePage({ complianceItems, onMarkComplete }: CompliancePa
               </div>
             </div>
 
-            <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-4">
+            <div className={`rounded-xl border ${cardBg} p-4`}>
               <div className="flex items-center gap-3 mb-2">
                 <div className="h-10 w-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                  <TrendingUp className="h-5 w-5 text-purple-400" />
+                  <TrendingUp className="h-5 w-5 text-purple-500" />
                 </div>
                 <div>
-                  <div className="text-xs text-neutral-400">Days Compliant</div>
-                  <div className="text-2xl font-semibold">127</div>
+                  <div className={`text-xs ${textSecondary}`}>Days Compliant</div>
+                  <div className={`text-2xl font-semibold ${textPrimary}`}>127</div>
                 </div>
               </div>
             </div>
@@ -124,10 +132,14 @@ export function CompliancePage({ complianceItems, onMarkComplete }: CompliancePa
             <div>
               <button
                 onClick={() => setIsItemsExpanded(!isItemsExpanded)}
-                className="w-full flex items-center justify-between p-4 rounded-xl border border-neutral-800 bg-neutral-900/40 hover:bg-neutral-900/60 transition-colors mb-3"
+                className={`w-full flex items-center justify-between p-4 rounded-xl border transition-colors mb-3 ${
+                  theme === 'light'
+                    ? 'bg-emerald-50 border-emerald-100 hover:bg-emerald-100/50'
+                    : 'bg-neutral-900/40 border-neutral-800 hover:bg-neutral-900/60'
+                }`}
               >
                 <div className="flex items-center gap-4">
-                  <h2 className="text-xl font-semibold">Compliance Items</h2>
+                  <h2 className={`text-xl font-semibold ${textPrimary}`}>Compliance Items</h2>
                   <div className="flex items-center gap-2">
                     {overdueCount > 0 && (
                       <span className="text-xs px-2 py-1 rounded-full bg-red-500/20 text-red-400 font-semibold">
@@ -147,9 +159,9 @@ export function CompliancePage({ complianceItems, onMarkComplete }: CompliancePa
                   </div>
                 </div>
                 {isItemsExpanded ? (
-                  <ChevronUp className="h-5 w-5 text-neutral-400" />
+                  <ChevronUp className={`h-5 w-5 ${textSecondary}`} />
                 ) : (
-                  <ChevronDown className="h-5 w-5 text-neutral-400" />
+                  <ChevronDown className={`h-5 w-5 ${textSecondary}`} />
                 )}
               </button>
 
@@ -181,7 +193,7 @@ export function CompliancePage({ complianceItems, onMarkComplete }: CompliancePa
                         </div>
                         <div className="flex-1">
                           <div className="flex items-start justify-between mb-1 gap-3">
-                            <h3 className="font-semibold text-neutral-100">{item.title}</h3>
+                            <h3 className={`font-semibold ${textPrimary}`}>{item.title}</h3>
                             <div className="flex items-center gap-2">
                               <span
                                 className={`text-xs px-2 py-1 rounded-full ${
@@ -202,8 +214,8 @@ export function CompliancePage({ complianceItems, onMarkComplete }: CompliancePa
                               )}
                             </div>
                           </div>
-                          <p className="text-sm text-neutral-400 mb-2">{item.description}</p>
-                          <div className="flex items-center gap-4 text-xs text-neutral-500">
+                          <p className={`text-sm ${textSecondary} mb-2`}>{item.description}</p>
+                          <div className={`flex items-center gap-4 text-xs ${textMuted}`}>
                             <span>Due: {new Date(item.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                             <span className="capitalize">{item.category}</span>
                             <span
@@ -370,8 +382,8 @@ export function CompliancePage({ complianceItems, onMarkComplete }: CompliancePa
         {/* Right Column: Upcoming Deadlines */}
         <div>
           {/* Upcoming Deadlines */}
-          <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-6">
-            <h2 className="text-lg font-semibold mb-4">Upcoming Deadlines</h2>
+          <div className={`rounded-xl border ${cardBg} p-6`}>
+            <h2 className={`text-lg font-semibold mb-4 ${textPrimary}`}>Upcoming Deadlines</h2>
             <div className="space-y-3">
               {[
                 { task: 'Q2 Earnings Report', due: 'Jun 15, 2025', priority: 'medium' },
@@ -379,17 +391,17 @@ export function CompliancePage({ complianceItems, onMarkComplete }: CompliancePa
                 { task: 'Brand Deal Disclosure', due: 'Aug 5, 2025', priority: 'medium' },
                 { task: 'Annual Compliance Review', due: 'Dec 31, 2025', priority: 'low' },
               ].map((item, index) => (
-                <div key={index} className="p-3 rounded-lg bg-neutral-950/50 border border-neutral-800">
+                <div key={index} className={`p-3 rounded-lg border ${innerCardBg}`}>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-start gap-2">
                       <Clock className={`h-4 w-4 mt-0.5 ${
-                        item.priority === 'high' ? 'text-red-400' :
-                        item.priority === 'medium' ? 'text-amber-400' :
-                        'text-neutral-400'
+                        item.priority === 'high' ? 'text-red-500' :
+                        item.priority === 'medium' ? 'text-amber-500' :
+                        textSecondary
                       }`} />
                       <div>
-                        <div className="text-sm font-medium text-neutral-100">{item.task}</div>
-                        <div className="text-xs text-neutral-400 mt-1">{item.due}</div>
+                        <div className={`text-sm font-medium ${textPrimary}`}>{item.task}</div>
+                        <div className={`text-xs ${textSecondary} mt-1`}>{item.due}</div>
                       </div>
                     </div>
                   </div>
@@ -402,8 +414,8 @@ export function CompliancePage({ complianceItems, onMarkComplete }: CompliancePa
       </div>
 
       {/* Recent Compliance Activity - Full Width */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-6">
-            <h2 className="text-lg font-semibold mb-4">Recent Compliance Activity</h2>
+      <div className={`rounded-xl border ${cardBg} p-6`}>
+            <h2 className={`text-lg font-semibold mb-4 ${textPrimary}`}>Recent Compliance Activity</h2>
             <div className="space-y-3">
               {[
                 {
@@ -412,7 +424,7 @@ export function CompliancePage({ complianceItems, onMarkComplete }: CompliancePa
                   date: 'Mar 15, 2025',
                   status: 'approved',
                   icon: CheckCircle,
-                  color: 'text-emerald-400'
+                  color: 'text-emerald-500'
                 },
                 {
                   action: 'Quarterly Report Submitted',
@@ -420,7 +432,7 @@ export function CompliancePage({ complianceItems, onMarkComplete }: CompliancePa
                   date: 'Mar 10, 2025',
                   status: 'approved',
                   icon: FileText,
-                  color: 'text-blue-400'
+                  color: 'text-blue-500'
                 },
                 {
                   action: 'Deal Amendment Filed',
@@ -428,7 +440,7 @@ export function CompliancePage({ complianceItems, onMarkComplete }: CompliancePa
                   date: 'Mar 5, 2025',
                   status: 'approved',
                   icon: CheckCircle,
-                  color: 'text-emerald-400'
+                  color: 'text-emerald-500'
                 },
                 {
                   action: 'Compliance Training Completed',
@@ -436,20 +448,20 @@ export function CompliancePage({ complianceItems, onMarkComplete }: CompliancePa
                   date: 'Feb 28, 2025',
                   status: 'completed',
                   icon: Shield,
-                  color: 'text-purple-400'
+                  color: 'text-purple-500'
                 }
               ].map((item, index) => (
-                <div key={index} className="flex items-start gap-4 p-4 rounded-lg bg-neutral-950/50 border border-neutral-800">
-                  <div className={`h-10 w-10 rounded-lg bg-neutral-800 flex items-center justify-center flex-shrink-0`}>
+                <div key={index} className={`flex items-start gap-4 p-4 rounded-lg border ${innerCardBg}`}>
+                  <div className={`h-10 w-10 rounded-lg ${iconBg} flex items-center justify-center flex-shrink-0`}>
                     <item.icon className={`h-5 w-5 ${item.color}`} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <div className="text-sm font-semibold text-neutral-100">{item.action}</div>
-                        <div className="text-xs text-neutral-400 mt-1">{item.description}</div>
+                        <div className={`text-sm font-semibold ${textPrimary}`}>{item.action}</div>
+                        <div className={`text-xs ${textSecondary} mt-1`}>{item.description}</div>
                       </div>
-                      <div className="text-xs text-neutral-500 whitespace-nowrap">{item.date}</div>
+                      <div className={`text-xs ${textMuted} whitespace-nowrap`}>{item.date}</div>
                     </div>
                   </div>
                 </div>

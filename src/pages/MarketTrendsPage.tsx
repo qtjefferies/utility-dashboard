@@ -105,9 +105,19 @@ const getColorClasses = (color: string) => {
 
 interface MarketTrendsPageProps {
   onAIClick?: (initialMessage?: string) => void;
+  theme?: 'light' | 'dark';
 }
 
-export function MarketTrendsPage({ onAIClick }: MarketTrendsPageProps) {
+export function MarketTrendsPage({ onAIClick, theme = 'dark' }: MarketTrendsPageProps) {
+  // Theme-aware styles
+  const cardBg = theme === 'light' ? 'bg-emerald-50 border-emerald-100' : 'bg-neutral-900/40 border-neutral-800';
+  const innerCardBg = theme === 'light' ? 'bg-white border-emerald-100' : 'bg-neutral-950/50 border-neutral-800';
+  const textPrimary = theme === 'light' ? 'text-gray-900' : 'text-neutral-100';
+  const textSecondary = theme === 'light' ? 'text-gray-600' : 'text-neutral-400';
+  const textMuted = theme === 'light' ? 'text-gray-500' : 'text-neutral-500';
+  const navButtonBg = theme === 'light' ? 'bg-emerald-100 hover:bg-emerald-200' : 'bg-neutral-800 hover:bg-neutral-700';
+  const navButtonText = theme === 'light' ? 'text-gray-700' : 'text-neutral-300';
+  const dotInactive = theme === 'light' ? 'bg-emerald-200 hover:bg-emerald-300' : 'bg-neutral-600 hover:bg-neutral-500';
   // TODO: Get user data from props or context - this should come from user profile/state/context
   const userSport = 'Football'; // Should come from user profile
   const userInterests = ['NIL', 'Tax Planning', 'Social Media']; // Should come from user profile
@@ -220,20 +230,20 @@ export function MarketTrendsPage({ onAIClick }: MarketTrendsPageProps) {
     <div className="px-8 py-6">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-semibold">My Future Money</h1>
-        <p className="mt-1 text-base text-neutral-400">Discover personalized trends and opportunities in NIL</p>
+        <h1 className={`text-3xl font-semibold ${textPrimary}`}>My Future Money</h1>
+        <p className={`mt-1 text-base ${textSecondary}`}>Discover personalized trends and opportunities in NIL</p>
       </div>
 
       {/* Your Discovery Station */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-6 mb-8">
+      <div className={`rounded-xl border ${cardBg} p-6 mb-8`}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Your Discovery Station</h2>
+          <h2 className={`text-xl font-semibold ${textPrimary}`}>Your Discovery Station</h2>
           <ChevronRight
-            className="h-5 w-5 text-neutral-400 hover:text-neutral-100 cursor-pointer"
+            className={`h-5 w-5 cursor-pointer ${theme === 'light' ? 'text-gray-400 hover:text-gray-700' : 'text-neutral-400 hover:text-neutral-100'}`}
             onClick={scrollDiscovery}
           />
         </div>
-        <p className="text-sm text-neutral-400 mb-4">Drill local news, top headlines and AI-generated key sport insights</p>
+        <p className={`text-sm ${textSecondary} mb-4`}>Drill local news, top headlines and AI-generated key sport insights</p>
 
          {/* Horizontally scrollable cards */}
          <div ref={discoveryScrollRef} className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
@@ -288,47 +298,47 @@ export function MarketTrendsPage({ onAIClick }: MarketTrendsPageProps) {
 
         {/* Carousel Dots */}
         <div className="flex items-center justify-center gap-2 mt-4">
-          <button 
+          <button
             onClick={scrollDiscovery}
             className="h-1.5 w-6 bg-emerald-500 rounded-full hover:bg-emerald-400 transition-colors cursor-pointer"
           />
-          <button 
+          <button
             onClick={scrollDiscovery}
-            className="h-1.5 w-1.5 bg-neutral-600 rounded-full hover:bg-neutral-500 transition-colors cursor-pointer"
+            className={`h-1.5 w-1.5 rounded-full transition-colors cursor-pointer ${dotInactive}`}
           />
-          <button 
+          <button
             onClick={scrollDiscovery}
-            className="h-1.5 w-1.5 bg-neutral-600 rounded-full hover:bg-neutral-500 transition-colors cursor-pointer"
+            className={`h-1.5 w-1.5 rounded-full transition-colors cursor-pointer ${dotInactive}`}
           />
-          <button 
+          <button
             onClick={scrollDiscovery}
-            className="h-1.5 w-1.5 bg-neutral-600 rounded-full hover:bg-neutral-500 transition-colors cursor-pointer"
+            className={`h-1.5 w-1.5 rounded-full transition-colors cursor-pointer ${dotInactive}`}
           />
         </div>
       </div>
 
       {/* Trending News - Separate section */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-6 mb-6">
+      <div className={`rounded-xl border ${cardBg} p-6 mb-6`}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Trending News</h2>
-          
+          <h2 className={`text-xl font-semibold ${textPrimary}`}>Trending News</h2>
+
           {/* Navigation Buttons */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => setNewsPage((prev) => (prev - 1 + 4) % 4)}
-              className="p-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 transition-colors"
+              className={`p-2 rounded-lg transition-colors ${navButtonBg}`}
               aria-label="Previous articles"
             >
-              <svg className="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={`w-5 h-5 ${navButtonText}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
             <button
               onClick={() => setNewsPage((prev) => (prev + 1) % 4)}
-              className="p-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 transition-colors"
+              className={`p-2 rounded-lg transition-colors ${navButtonBg}`}
               aria-label="Next articles"
             >
-              <svg className="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={`w-5 h-5 ${navButtonText}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
@@ -340,8 +350,8 @@ export function MarketTrendsPage({ onAIClick }: MarketTrendsPageProps) {
           {isLoadingNews ? (
             // Loading state
             <>
-              <div className="h-56 bg-neutral-800 rounded-lg animate-pulse" />
-              <div className="h-56 bg-neutral-800 rounded-lg animate-pulse" />
+              <div className={`h-56 rounded-lg animate-pulse ${theme === 'light' ? 'bg-emerald-100' : 'bg-neutral-800'}`} />
+              <div className={`h-56 rounded-lg animate-pulse ${theme === 'light' ? 'bg-emerald-100' : 'bg-neutral-800'}`} />
             </>
           ) : currentNews.length > 0 ? (
             currentNews.map((article) => (
@@ -350,33 +360,37 @@ export function MarketTrendsPage({ onAIClick }: MarketTrendsPageProps) {
                 href={article.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-lg bg-neutral-900/60 p-5 border border-neutral-700 hover:border-neutral-600 hover:scale-105 transition-all duration-300 cursor-pointer flex flex-col animate-fade-slide-in"
+                className={`rounded-lg p-5 border hover:scale-105 transition-all duration-300 cursor-pointer flex flex-col animate-fade-slide-in ${
+                  theme === 'light'
+                    ? 'bg-white border-emerald-200 hover:border-emerald-300'
+                    : 'bg-neutral-900/60 border-neutral-700 hover:border-neutral-600'
+                }`}
               >
                 {/* Thumbnail */}
                 <div
-                  className="w-full h-32 bg-neutral-800 rounded-lg mb-3 bg-cover bg-center"
+                  className={`w-full h-32 rounded-lg mb-3 bg-cover bg-center ${theme === 'light' ? 'bg-emerald-100' : 'bg-neutral-800'}`}
                   style={{ backgroundImage: `url(${article.imageUrl})` }}
                 />
 
                 {/* Content */}
                 <div className="flex-1">
-                  <h3 className="text-sm font-semibold text-neutral-100 mb-2 line-clamp-2 leading-tight">
+                  <h3 className={`text-sm font-semibold mb-2 line-clamp-2 leading-tight ${textPrimary}`}>
                     {article.title}
                   </h3>
-                  <p className="text-xs text-neutral-400 line-clamp-2">
+                  <p className={`text-xs line-clamp-2 ${textSecondary}`}>
                     {article.description}
                   </p>
                 </div>
 
                 {/* Source */}
-                <div className="text-xs text-neutral-400 mt-3">
+                <div className={`text-xs mt-3 ${textSecondary}`}>
                   {article.source}
                 </div>
               </a>
             ))
           ) : (
             // No news found
-            <div className="col-span-2 text-center py-12 text-neutral-400">
+            <div className={`col-span-2 text-center py-12 ${textSecondary}`}>
               No news articles available at this time.
             </div>
           )}
@@ -390,9 +404,9 @@ export function MarketTrendsPage({ onAIClick }: MarketTrendsPageProps) {
                 key={page}
                 onClick={() => setNewsPage(page)}
                 className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                  page === newsPage 
-                    ? 'w-6 bg-purple-500 hover:bg-purple-400' 
-                    : 'w-1.5 bg-neutral-600 hover:bg-neutral-500'
+                  page === newsPage
+                    ? 'w-6 bg-purple-500 hover:bg-purple-400'
+                    : `w-1.5 ${dotInactive}`
                 }`}
               />
             ))}
@@ -401,32 +415,32 @@ export function MarketTrendsPage({ onAIClick }: MarketTrendsPageProps) {
       </div>
 
       {/* My Assets Portfolio */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-6 mb-6">
+      <div className={`rounded-xl border ${cardBg} p-6 mb-6`}>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold">My Assets</h2>
-          <button className="text-sm text-neutral-400 hover:text-neutral-100">View All →</button>
+          <h2 className={`text-xl font-semibold ${textPrimary}`}>My Assets</h2>
+          <button className={`text-sm ${theme === 'light' ? 'text-emerald-600 hover:text-emerald-700' : 'text-neutral-400 hover:text-neutral-100'}`}>View All →</button>
         </div>
 
         {/* Portfolio Returns Summary */}
-        <div className="grid grid-cols-4 gap-4 mb-6 p-5 bg-neutral-950/50 rounded-lg border border-neutral-800">
+        <div className={`grid grid-cols-4 gap-4 mb-6 p-5 rounded-lg border ${innerCardBg}`}>
           <div>
-            <div className="text-xs text-neutral-400 mb-1">Total Value</div>
-            <div className="text-2xl font-semibold text-neutral-100">$19,056</div>
+            <div className={`text-xs ${textSecondary} mb-1`}>Total Value</div>
+            <div className={`text-2xl font-semibold ${textPrimary}`}>$19,056</div>
           </div>
           <div>
-            <div className="text-xs text-neutral-400 mb-1">Today's Return</div>
-            <div className="text-xl font-semibold text-emerald-400">+$4.04</div>
-            <div className="text-xs text-emerald-400">+0.02%</div>
+            <div className={`text-xs ${textSecondary} mb-1`}>Today's Return</div>
+            <div className="text-xl font-semibold text-emerald-500">+$4.04</div>
+            <div className="text-xs text-emerald-500">+0.02%</div>
           </div>
           <div>
-            <div className="text-xs text-neutral-400 mb-1">Total Return</div>
-            <div className="text-xl font-semibold text-emerald-400">+$1,256</div>
-            <div className="text-xs text-emerald-400">+7.06%</div>
+            <div className={`text-xs ${textSecondary} mb-1`}>Total Return</div>
+            <div className="text-xl font-semibold text-emerald-500">+$1,256</div>
+            <div className="text-xs text-emerald-500">+7.06%</div>
           </div>
           <div>
-            <div className="text-xs text-neutral-400 mb-1">Annual Return</div>
-            <div className="text-xl font-semibold text-emerald-400">+12.8%</div>
-            <div className="text-xs text-neutral-400">vs S&P 500: +15.2%</div>
+            <div className={`text-xs ${textSecondary} mb-1`}>Annual Return</div>
+            <div className="text-xl font-semibold text-emerald-500">+12.8%</div>
+            <div className={`text-xs ${textSecondary}`}>vs S&P 500: +15.2%</div>
           </div>
         </div>
 
@@ -438,28 +452,32 @@ export function MarketTrendsPage({ onAIClick }: MarketTrendsPageProps) {
             { ticker: 'NVDA', name: 'NVIDIA Corp.', allocation: '25%', value: 3918.00, change: -23, changePercent: -0.023, logo: '💚', bgColor: 'bg-emerald-600' },
             { ticker: 'AMZN', name: 'Amazon.com', allocation: '20%', value: 2518.00, change: 8.50, changePercent: 0.034, logo: '📦', bgColor: 'bg-neutral-700' }
           ].map((asset, index) => (
-            <div key={index} className="rounded-lg border border-neutral-800 bg-neutral-900/50 p-4 hover:border-neutral-700 transition-colors">
+            <div key={index} className={`rounded-lg border p-4 transition-colors ${
+              theme === 'light'
+                ? 'bg-white border-emerald-100 hover:border-emerald-200'
+                : 'bg-neutral-900/50 border-neutral-800 hover:border-neutral-700'
+            }`}>
               <div className="flex items-center gap-3 mb-3">
                 <div className={`w-12 h-12 ${asset.bgColor} rounded-lg flex items-center justify-center text-xl`}>
                   {asset.logo}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold text-neutral-100 truncate">{asset.ticker}</div>
-                  <div className="text-xs text-neutral-400 truncate">{asset.name}</div>
+                  <div className={`text-sm font-semibold truncate ${textPrimary}`}>{asset.ticker}</div>
+                  <div className={`text-xs truncate ${textSecondary}`}>{asset.name}</div>
                 </div>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-neutral-400">Value</span>
-                  <span className="text-sm font-semibold text-neutral-100">${asset.value.toLocaleString()}</span>
+                  <span className={`text-xs ${textSecondary}`}>Value</span>
+                  <span className={`text-sm font-semibold ${textPrimary}`}>${asset.value.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-neutral-400">Allocation</span>
-                  <span className="text-sm font-semibold text-neutral-100">{asset.allocation}</span>
+                  <span className={`text-xs ${textSecondary}`}>Allocation</span>
+                  <span className={`text-sm font-semibold ${textPrimary}`}>{asset.allocation}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-neutral-400">Today</span>
-                  <div className={`text-sm font-semibold ${asset.change >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                  <span className={`text-xs ${textSecondary}`}>Today</span>
+                  <div className={`text-sm font-semibold ${asset.change >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
                     {asset.change >= 0 ? '▲' : '▼'} {asset.change >= 0 ? '+' : ''}{asset.change.toFixed(2)} ({(asset.changePercent * 100).toFixed(2)}%)
                   </div>
                 </div>
@@ -470,11 +488,11 @@ export function MarketTrendsPage({ onAIClick }: MarketTrendsPageProps) {
       </div>
 
       {/* Athletes Like You Are Exploring */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-6 mb-6">
+      <div className={`rounded-xl border ${cardBg} p-6 mb-6`}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Athletes Like You Are Exploring</h2>
+          <h2 className={`text-xl font-semibold ${textPrimary}`}>Athletes Like You Are Exploring</h2>
           <ChevronRight
-            className="h-5 w-5 text-neutral-400 hover:text-neutral-100 cursor-pointer"
+            className={`h-5 w-5 cursor-pointer ${theme === 'light' ? 'text-gray-400 hover:text-gray-700' : 'text-neutral-400 hover:text-neutral-100'}`}
             onClick={scrollAthletes}
           />
         </div>
@@ -491,9 +509,9 @@ export function MarketTrendsPage({ onAIClick }: MarketTrendsPageProps) {
                 {trend.badge && (
                   <div className={`text-xs font-semibold ${colorClasses.text} mb-2`}>{trend.badge}</div>
                 )}
-                <h3 className="text-sm font-semibold text-neutral-100 mb-2">{trend.title}</h3>
-                <p className="text-xs text-neutral-400 mb-3">{trend.subtitle}</p>
-                <div className="h-12 bg-neutral-800/30 rounded-lg flex items-end justify-around px-2 py-2">
+                <h3 className={`text-sm font-semibold mb-2 ${textPrimary}`}>{trend.title}</h3>
+                <p className={`text-xs mb-3 ${textSecondary}`}>{trend.subtitle}</p>
+                <div className={`h-12 rounded-lg flex items-end justify-around px-2 py-2 ${theme === 'light' ? 'bg-white/50' : 'bg-neutral-800/30'}`}>
                   {trend.data.map((height, i) => (
                     <div
                       key={i}
@@ -509,26 +527,26 @@ export function MarketTrendsPage({ onAIClick }: MarketTrendsPageProps) {
 
         {/* Carousel Dots */}
         <div className="flex items-center justify-center gap-2 mt-4">
-          <button 
+          <button
             onClick={scrollAthletes}
             className="h-1.5 w-6 bg-emerald-500 rounded-full hover:bg-emerald-400 transition-colors cursor-pointer"
           />
-          <button 
+          <button
             onClick={scrollAthletes}
-            className="h-1.5 w-1.5 bg-neutral-600 rounded-full hover:bg-neutral-500 transition-colors cursor-pointer"
+            className={`h-1.5 w-1.5 rounded-full transition-colors cursor-pointer ${dotInactive}`}
           />
-          <button 
+          <button
             onClick={scrollAthletes}
-            className="h-1.5 w-1.5 bg-neutral-600 rounded-full hover:bg-neutral-500 transition-colors cursor-pointer"
+            className={`h-1.5 w-1.5 rounded-full transition-colors cursor-pointer ${dotInactive}`}
           />
         </div>
       </div>
 
       {/* Curated for You - Auto-cycling Videos (2 at a time) */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-6">
+      <div className={`rounded-xl border ${cardBg} p-6`}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Curated for You</h2>
-          
+          <h2 className={`text-xl font-semibold ${textPrimary}`}>Curated for You</h2>
+
           {/* Navigation Buttons */}
           <div className="flex items-center gap-2">
             <button
@@ -537,10 +555,10 @@ export function MarketTrendsPage({ onAIClick }: MarketTrendsPageProps) {
                 setIsVideoHovered(true);
                 setTimeout(() => setIsVideoHovered(false), 100);
               }}
-              className="p-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 transition-colors"
+              className={`p-2 rounded-lg transition-colors ${navButtonBg}`}
               aria-label="Previous videos"
             >
-              <svg className="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={`w-5 h-5 ${navButtonText}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
@@ -550,10 +568,10 @@ export function MarketTrendsPage({ onAIClick }: MarketTrendsPageProps) {
                 setIsVideoHovered(true);
                 setTimeout(() => setIsVideoHovered(false), 100);
               }}
-              className="p-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 transition-colors"
+              className={`p-2 rounded-lg transition-colors ${navButtonBg}`}
               aria-label="Next videos"
             >
-              <svg className="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={`w-5 h-5 ${navButtonText}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
@@ -569,8 +587,8 @@ export function MarketTrendsPage({ onAIClick }: MarketTrendsPageProps) {
           {isLoadingVideos ? (
             // Loading state
             <>
-              <div className="h-[250px] bg-neutral-800 rounded-xl animate-pulse" />
-              <div className="h-[250px] bg-neutral-800 rounded-xl animate-pulse" />
+              <div className={`h-[250px] rounded-xl animate-pulse ${theme === 'light' ? 'bg-emerald-100' : 'bg-neutral-800'}`} />
+              <div className={`h-[250px] rounded-xl animate-pulse ${theme === 'light' ? 'bg-emerald-100' : 'bg-neutral-800'}`} />
             </>
           ) : currentVideos.length > 0 ? (
             currentVideos.map((video, index) => (
@@ -600,12 +618,12 @@ export function MarketTrendsPage({ onAIClick }: MarketTrendsPageProps) {
             ))
           ) : (
             // No videos found
-            <div className="col-span-2 text-center py-12 text-neutral-400">
+            <div className={`col-span-2 text-center py-12 ${textSecondary}`}>
               No videos found. Configure your YouTube API key to see personalized content.
             </div>
           )}
         </div>
-        
+
         {/* Carousel Dots */}
         {!isLoadingVideos && currentVideos.length > 0 && (
           <div className="flex items-center justify-center gap-2">
@@ -616,9 +634,9 @@ export function MarketTrendsPage({ onAIClick }: MarketTrendsPageProps) {
                 onMouseEnter={() => setIsVideoHovered(true)}
                 onMouseLeave={() => setIsVideoHovered(false)}
                 className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                  page === videoPage 
-                    ? 'w-6 bg-orange-500 hover:bg-orange-400' 
-                    : 'w-1.5 bg-neutral-600 hover:bg-neutral-500'
+                  page === videoPage
+                    ? 'w-6 bg-orange-500 hover:bg-orange-400'
+                    : `w-1.5 ${dotInactive}`
                 }`}
               />
             ))}

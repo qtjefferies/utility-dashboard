@@ -17,9 +17,10 @@ interface GlassmorphicCardProps {
   onPhotoUpload: (personId: string, photoFile: File) => void;
   getRoleColor: (role: string) => string;
   getRoleAvatarColor: (roles: string[]) => string;
+  theme?: 'light' | 'dark';
 }
 
-export function GlassmorphicCard({ person, onEdit, onDelete, onPhotoUpload, getRoleColor, getRoleAvatarColor }: GlassmorphicCardProps) {
+export function GlassmorphicCard({ person, onEdit, onDelete, onPhotoUpload, getRoleColor, getRoleAvatarColor, theme = 'dark' }: GlassmorphicCardProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handlePhotoClick = () => {
@@ -35,25 +36,41 @@ export function GlassmorphicCard({ person, onEdit, onDelete, onPhotoUpload, getR
 
   const getAccessLevelBadge = () => {
     if (person.accessLevel === 'admin') {
-      return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">Admin</span>;
+      return <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 border border-emerald-500/30 ${theme === 'light' ? 'text-emerald-600' : 'text-emerald-300'}`}>Admin</span>;
     }
     if (person.accessLevel === 'read-only') {
-      return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-300 border border-blue-500/30">Read-Only</span>;
+      return <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-blue-500/10 border border-blue-500/30 ${theme === 'light' ? 'text-blue-600' : 'text-blue-300'}`}>Read-Only</span>;
     }
     return null;
   };
 
+  // Theme-aware styles
+  const cardStyles = theme === 'light'
+    ? 'border-emerald-200 bg-emerald-50 hover:border-emerald-400 hover:shadow-xl hover:shadow-emerald-500/10'
+    : 'border-neutral-700/50 bg-gradient-to-br from-neutral-900/60 to-neutral-800/40 backdrop-blur-xl hover:border-emerald-500/50 hover:shadow-2xl hover:shadow-emerald-500/20';
+
+  const glowStyles = theme === 'light'
+    ? 'from-emerald-500/5 to-teal-500/5'
+    : 'from-emerald-500/5 to-purple-500/5';
+
+  const textPrimary = theme === 'light' ? 'text-gray-900' : 'text-neutral-100';
+  const textSecondary = theme === 'light' ? 'text-gray-600' : 'text-neutral-400';
+  const avatarRing = theme === 'light' ? 'ring-emerald-200 group-hover:ring-emerald-400' : 'ring-neutral-800/50 group-hover:ring-emerald-500/30';
+  const statusDotBorder = theme === 'light' ? 'border-emerald-50' : 'border-neutral-900';
+  const actionButtonBg = theme === 'light' ? 'bg-emerald-100/80 hover:bg-emerald-600 text-gray-500' : 'bg-neutral-800/80 hover:bg-emerald-600 text-neutral-400';
+  const deleteButtonBg = theme === 'light' ? 'bg-emerald-100/80 hover:bg-red-600 text-gray-500' : 'bg-neutral-800/80 hover:bg-red-600 text-neutral-400';
+
   return (
-    <div className="rounded-3xl border border-neutral-700/50 bg-gradient-to-br from-neutral-900/60 to-neutral-800/40 backdrop-blur-xl p-6 hover:border-emerald-500/50 hover:shadow-2xl hover:shadow-emerald-500/20 hover:-translate-y-1 transition-all duration-300 group flex flex-col relative overflow-hidden">
+    <div className={`rounded-3xl border p-6 hover:-translate-y-1 transition-all duration-300 group flex flex-col relative overflow-hidden ${cardStyles}`}>
       {/* Glow effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className={`absolute inset-0 bg-gradient-to-br ${glowStyles} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
 
       <div className="relative z-10">
         <div className="flex items-start justify-between mb-4">
           <div className="relative">
             <button
               onClick={handlePhotoClick}
-              className={`${getRoleAvatarColor(person.roles)} h-16 w-16 rounded-full flex items-center justify-center ring-4 ring-neutral-800/50 group-hover:ring-emerald-500/30 transition-all overflow-hidden cursor-pointer relative group/photo`}
+              className={`${getRoleAvatarColor(person.roles)} h-16 w-16 rounded-full flex items-center justify-center ring-4 ${avatarRing} transition-all overflow-hidden cursor-pointer relative group/photo`}
             >
               {person.photoUrl ? (
                 <>
@@ -82,19 +99,19 @@ export function GlassmorphicCard({ person, onEdit, onDelete, onPhotoUpload, getR
               onChange={handleFileChange}
               className="hidden"
             />
-            <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-emerald-500 rounded-full border-4 border-neutral-900 shadow-lg" />
+            <div className={`absolute -bottom-1 -right-1 h-5 w-5 bg-emerald-500 rounded-full border-4 shadow-lg ${statusDotBorder}`} />
           </div>
           <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button onClick={() => onEdit(person)} className="p-2 bg-neutral-800/80 hover:bg-emerald-600 backdrop-blur rounded-lg text-neutral-400 hover:text-white transition-colors">
+            <button onClick={() => onEdit(person)} className={`p-2 backdrop-blur rounded-lg hover:text-white transition-colors ${actionButtonBg}`}>
               <Edit2 className="h-4 w-4" />
             </button>
-            <button onClick={() => onDelete(person)} className="p-2 bg-neutral-800/80 hover:bg-red-600 backdrop-blur rounded-lg text-neutral-400 hover:text-white transition-colors">
+            <button onClick={() => onDelete(person)} className={`p-2 backdrop-blur rounded-lg hover:text-white transition-colors ${deleteButtonBg}`}>
               <Trash2 className="h-4 w-4" />
             </button>
           </div>
         </div>
         <div className="mb-4">
-          <h3 className="font-bold text-xl text-neutral-100 mb-2">{person.name}</h3>
+          <h3 className={`font-bold text-xl mb-2 ${textPrimary}`}>{person.name}</h3>
           <div className="flex flex-wrap gap-2 items-center">
             {(Array.isArray(person.roles) ? person.roles : [person.roles]).map((role, idx) => (
               <span key={idx} className={`inline-block px-3 py-1.5 rounded-full text-xs font-semibold border backdrop-blur ${getRoleColor(role)}`}>
@@ -104,7 +121,7 @@ export function GlassmorphicCard({ person, onEdit, onDelete, onPhotoUpload, getR
             {getAccessLevelBadge()}
           </div>
         </div>
-        <div className="space-y-2 text-sm text-neutral-400">
+        <div className={`space-y-2 text-sm ${textSecondary}`}>
           <div className="flex items-center gap-2">
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />

@@ -19,9 +19,10 @@ interface DealsPageProps {
   onUpdateDeal: (deal: Deal) => void;
   onDeleteDeal: (dealId: string) => void;
   onAddDeal: (deal: any) => void;
+  theme?: 'light' | 'dark';
 }
 
-export function DealsPage({ deals, onUpdateDeal, onDeleteDeal, onAddDeal }: DealsPageProps) {
+export function DealsPage({ deals, onUpdateDeal, onDeleteDeal, onAddDeal, theme = 'dark' }: DealsPageProps) {
   const [activeFilter, setActiveFilter] = useState("all");
   const [showNewDealModal, setShowNewDealModal] = useState(false);
   const [showFiltersMenu, setShowFiltersMenu] = useState(false);
@@ -135,12 +136,26 @@ export function DealsPage({ deals, onUpdateDeal, onDeleteDeal, onAddDeal }: Deal
     }));
   };
 
+  // Theme-aware styles
+  const tableBg = theme === 'light' ? 'bg-emerald-50 border-emerald-100' : 'bg-neutral-900/40 border-neutral-800';
+  const headerBg = theme === 'light' ? 'bg-emerald-100/50' : '';
+  const headerText = theme === 'light' ? 'text-emerald-700' : 'text-neutral-500';
+  const headerHover = theme === 'light' ? 'hover:text-emerald-900' : 'hover:text-neutral-300';
+  const rowBorder = theme === 'light' ? 'border-emerald-100' : 'border-neutral-800';
+  const rowHover = theme === 'light' ? 'hover:bg-white/60' : 'hover:bg-neutral-900/50';
+  const textPrimary = theme === 'light' ? 'text-gray-900' : 'text-neutral-100';
+  const textSecondary = theme === 'light' ? 'text-gray-600' : 'text-neutral-300';
+  const textMuted = theme === 'light' ? 'text-gray-500' : 'text-neutral-400';
+  const actionBtnHover = theme === 'light' ? 'hover:bg-emerald-100' : 'hover:bg-neutral-800';
+  const pageTitle = theme === 'light' ? 'text-gray-900' : 'text-neutral-100';
+  const pageSubtitle = theme === 'light' ? 'text-gray-600' : 'text-neutral-400';
+
   return (
     <div className="px-10 py-8">
       <div className="flex items-start justify-between mb-8">
         <div>
-          <h1 className="text-4xl font-semibold">Deals & Income</h1>
-          <p className="mt-2 text-base text-neutral-400">Track your NIL deals and payments</p>
+          <h1 className={`text-4xl font-semibold ${pageTitle}`}>Deals & Income</h1>
+          <p className={`mt-2 text-base ${pageSubtitle}`}>Track your NIL deals and payments</p>
         </div>
         <button
           onClick={() => setShowNewDealModal(true)}
@@ -157,46 +172,58 @@ export function DealsPage({ deals, onUpdateDeal, onDeleteDeal, onAddDeal }: Deal
             active={activeFilter === "all"}
             onClick={() => setActiveFilter("all")}
             label={`All (${counts.all})`}
+            theme={theme}
           />
           <FilterTab
             active={activeFilter === "active"}
             onClick={() => setActiveFilter("active")}
             label={`Active (${counts.active})`}
+            theme={theme}
           />
           <FilterTab
             active={activeFilter === "pending"}
             onClick={() => setActiveFilter("pending")}
             label={`Pending (${counts.pending})`}
+            theme={theme}
           />
           <FilterTab
             active={activeFilter === "completed"}
             onClick={() => setActiveFilter("completed")}
             label={`Completed (${counts.completed})`}
+            theme={theme}
           />
         </div>
         <div className="relative">
           <button
             onClick={() => setShowFiltersMenu(!showFiltersMenu)}
-            className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 px-4 py-2 rounded-lg text-sm border border-neutral-800 relative"
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm border relative ${
+              theme === 'light'
+                ? 'bg-white hover:bg-emerald-50 border-emerald-200 text-gray-700'
+                : 'bg-neutral-900 hover:bg-neutral-800 border-neutral-800 text-neutral-300'
+            }`}
           >
             <Filter className="h-4 w-4" />
             Filters
             {activeFiltersCount > 0 && (
-              <span className="absolute -top-1 -right-1 h-5 w-5 bg-emerald-600 rounded-full flex items-center justify-center text-xs font-semibold">
+              <span className="absolute -top-1 -right-1 h-5 w-5 bg-emerald-600 rounded-full flex items-center justify-center text-xs font-semibold text-white">
                 {activeFiltersCount}
               </span>
             )}
           </button>
 
           {showFiltersMenu && (
-            <div className="absolute right-0 top-full mt-2 w-80 bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl z-50">
+            <div className={`absolute right-0 top-full mt-2 w-80 rounded-xl shadow-2xl z-50 ${
+              theme === 'light'
+                ? 'bg-white border border-emerald-200'
+                : 'bg-neutral-900 border border-neutral-800'
+            }`}>
               <div className="p-6 space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">Filters</h3>
+                  <h3 className={`text-lg font-semibold ${theme === 'light' ? 'text-gray-900' : ''}`}>Filters</h3>
                   {activeFiltersCount > 0 && (
                     <button
                       onClick={clearFilters}
-                      className="text-sm text-emerald-400 hover:text-emerald-300"
+                      className="text-sm text-emerald-600 hover:text-emerald-500"
                     >
                       Clear all
                     </button>
@@ -204,7 +231,7 @@ export function DealsPage({ deals, onUpdateDeal, onDeleteDeal, onAddDeal }: Deal
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-neutral-300 mb-2">
+                  <label className={`block text-sm font-medium mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-neutral-300'}`}>
                     Deal Name
                   </label>
                   <input
@@ -212,12 +239,16 @@ export function DealsPage({ deals, onUpdateDeal, onDeleteDeal, onAddDeal }: Deal
                     value={filters.dealName}
                     onChange={(e) => setFilters(prev => ({ ...prev, dealName: e.target.value }))}
                     placeholder="Search deals..."
-                    className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-neutral-100 placeholder-neutral-600 focus:outline-none focus:border-emerald-600"
+                    className={`w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-600 ${
+                      theme === 'light'
+                        ? 'bg-emerald-50 border border-emerald-200 text-gray-900 placeholder-gray-400'
+                        : 'bg-neutral-950 border border-neutral-800 text-neutral-100 placeholder-neutral-600'
+                    }`}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-neutral-300 mb-2">
+                  <label className={`block text-sm font-medium mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-neutral-300'}`}>
                     Source
                   </label>
                   <div className="space-y-2">
@@ -229,14 +260,14 @@ export function DealsPage({ deals, onUpdateDeal, onDeleteDeal, onAddDeal }: Deal
                           onChange={() => toggleSource(source)}
                           className="w-4 h-4 rounded border-neutral-700 bg-neutral-950 text-emerald-600 focus:ring-emerald-600 focus:ring-offset-0"
                         />
-                        <span className="text-sm text-neutral-300">{source}</span>
+                        <span className={`text-sm ${theme === 'light' ? 'text-gray-700' : 'text-neutral-300'}`}>{source}</span>
                       </label>
                     ))}
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-neutral-300 mb-2">
+                  <label className={`block text-sm font-medium mb-2 ${theme === 'light' ? 'text-gray-700' : 'text-neutral-300'}`}>
                     Amount Range
                   </label>
                   <div className="grid grid-cols-2 gap-3">
@@ -246,7 +277,11 @@ export function DealsPage({ deals, onUpdateDeal, onDeleteDeal, onAddDeal }: Deal
                         value={filters.minAmount}
                         onChange={(e) => setFilters(prev => ({ ...prev, minAmount: e.target.value }))}
                         placeholder="Min"
-                        className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-neutral-100 placeholder-neutral-600 focus:outline-none focus:border-emerald-600"
+                        className={`w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-600 ${
+                          theme === 'light'
+                            ? 'bg-emerald-50 border border-emerald-200 text-gray-900 placeholder-gray-400'
+                            : 'bg-neutral-950 border border-neutral-800 text-neutral-100 placeholder-neutral-600'
+                        }`}
                       />
                     </div>
                     <div>
@@ -255,7 +290,11 @@ export function DealsPage({ deals, onUpdateDeal, onDeleteDeal, onAddDeal }: Deal
                         value={filters.maxAmount}
                         onChange={(e) => setFilters(prev => ({ ...prev, maxAmount: e.target.value }))}
                         placeholder="Max"
-                        className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-neutral-100 placeholder-neutral-600 focus:outline-none focus:border-emerald-600"
+                        className={`w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-600 ${
+                          theme === 'light'
+                            ? 'bg-emerald-50 border border-emerald-200 text-gray-900 placeholder-gray-400'
+                            : 'bg-neutral-950 border border-neutral-800 text-neutral-100 placeholder-neutral-600'
+                        }`}
                       />
                     </div>
                   </div>
@@ -272,60 +311,60 @@ export function DealsPage({ deals, onUpdateDeal, onDeleteDeal, onAddDeal }: Deal
         </div>
       </div>
 
-      <div className="rounded-2xl border border-neutral-800 bg-neutral-900/40 overflow-hidden">
+      <div className={`rounded-2xl border ${tableBg} overflow-hidden`}>
         <table className="w-full">
           <thead>
-            <tr className="border-b border-neutral-800">
-              <th className="text-left px-8 py-4 text-xs uppercase tracking-wide text-neutral-500 font-semibold">
-                <button onClick={() => handleSort('status')} className="flex items-center gap-1 hover:text-neutral-300">
+            <tr className={`border-b ${rowBorder} ${headerBg}`}>
+              <th className={`text-left px-8 py-4 text-xs uppercase tracking-wide ${headerText} font-semibold`}>
+                <button onClick={() => handleSort('status')} className={`flex items-center gap-1 ${headerHover}`}>
                   Status <SortIcon field="status" />
                 </button>
               </th>
-              <th className="text-left px-8 py-4 text-xs uppercase tracking-wide text-neutral-500 font-semibold">
-                <button onClick={() => handleSort('dealName')} className="flex items-center gap-1 hover:text-neutral-300">
+              <th className={`text-left px-8 py-4 text-xs uppercase tracking-wide ${headerText} font-semibold`}>
+                <button onClick={() => handleSort('dealName')} className={`flex items-center gap-1 ${headerHover}`}>
                   Deal Name <SortIcon field="dealName" />
                 </button>
               </th>
-              <th className="text-left px-8 py-4 text-xs uppercase tracking-wide text-neutral-500 font-semibold">
-                <button onClick={() => handleSort('source')} className="flex items-center gap-1 hover:text-neutral-300">
+              <th className={`text-left px-8 py-4 text-xs uppercase tracking-wide ${headerText} font-semibold`}>
+                <button onClick={() => handleSort('source')} className={`flex items-center gap-1 ${headerHover}`}>
                   Source <SortIcon field="source" />
                 </button>
               </th>
-              <th className="text-left px-8 py-4 text-xs uppercase tracking-wide text-neutral-500 font-semibold">
-                <button onClick={() => handleSort('amount')} className="flex items-center gap-1 hover:text-neutral-300">
+              <th className={`text-left px-8 py-4 text-xs uppercase tracking-wide ${headerText} font-semibold`}>
+                <button onClick={() => handleSort('amount')} className={`flex items-center gap-1 ${headerHover}`}>
                   Amount <SortIcon field="amount" />
                 </button>
               </th>
-              <th className="text-left px-8 py-4 text-xs uppercase tracking-wide text-neutral-500 font-semibold">Next Action</th>
-              <th className="text-left px-8 py-4 text-xs uppercase tracking-wide text-neutral-500 font-semibold">Actions</th>
+              <th className={`text-left px-8 py-4 text-xs uppercase tracking-wide ${headerText} font-semibold`}>Next Action</th>
+              <th className={`text-left px-8 py-4 text-xs uppercase tracking-wide ${headerText} font-semibold`}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredDeals.map((deal) => (
-              <tr key={deal.id} className="border-b border-neutral-800 last:border-0 hover:bg-neutral-900/50">
+              <tr key={deal.id} className={`border-b ${rowBorder} last:border-0 ${rowHover} transition-colors`}>
                 <td className="px-8 py-4">
                   <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(deal.status)}`}>
                     {getStatusLabel(deal.status)}
                   </span>
                 </td>
-                <td className="px-8 py-4 text-base font-medium text-neutral-100">{deal.dealName}</td>
-                <td className="px-8 py-4 text-base text-neutral-300">{deal.source}</td>
-                <td className="px-8 py-4 text-base font-semibold text-neutral-100">
+                <td className={`px-8 py-4 text-base font-medium ${textPrimary}`}>{deal.dealName}</td>
+                <td className={`px-8 py-4 text-base ${textSecondary}`}>{deal.source}</td>
+                <td className={`px-8 py-4 text-base font-semibold ${textPrimary}`}>
                   ${deal.amount.toLocaleString()}{deal.amountType === "monthly" && "/mo"}
                 </td>
-                <td className="px-8 py-4 text-base text-neutral-400">{deal.nextAction || "—"}</td>
+                <td className={`px-8 py-4 text-base ${textMuted}`}>{deal.nextAction || "—"}</td>
                 <td className="px-8 py-4">
                   <div className="flex items-center gap-2">
-                    <button 
+                    <button
                       onClick={() => setEditingDeal(deal)}
-                      className="p-1.5 hover:bg-neutral-800 rounded text-neutral-400 hover:text-emerald-400 transition-colors"
+                      className={`p-1.5 ${actionBtnHover} rounded ${textMuted} hover:text-emerald-500 transition-colors`}
                       title="Edit deal"
                     >
                       <Edit2 className="h-4 w-4" />
                     </button>
-                    <button 
+                    <button
                       onClick={() => setDeletingDeal(deal)}
-                      className="p-1.5 hover:bg-neutral-800 rounded text-neutral-400 hover:text-red-400 transition-colors"
+                      className={`p-1.5 ${actionBtnHover} rounded ${textMuted} hover:text-red-500 transition-colors`}
                       title="Delete deal"
                     >
                       <Trash2 className="h-4 w-4" />

@@ -23,15 +23,24 @@ interface MyPeoplePageProps {
   onUpdatePerson: (person: Person) => void;
   onDeletePerson: (personId: string) => void;
   onAddPerson: (person: any) => void;
+  theme?: 'light' | 'dark';
 }
 
-export function MyPeoplePage({ people, onUpdatePerson, onDeletePerson, onAddPerson }: MyPeoplePageProps) {
+export function MyPeoplePage({ people, onUpdatePerson, onDeletePerson, onAddPerson, theme = 'dark' }: MyPeoplePageProps) {
   const [showModal, setShowModal] = useState(false);
   const [editingPerson, setEditingPerson] = useState<Person | null>(null);
   const [deletingPerson, setDeletingPerson] = useState<Person | null>(null);
   const [flippedCard, setFlippedCard] = useState<string | null>(null);
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
   const cardStyle = 'glassmorphic'; // Fixed to glassmorphic style
+
+  // Theme-aware styles
+  const textPrimary = theme === 'light' ? 'text-gray-900' : 'text-neutral-100';
+  const textSecondary = theme === 'light' ? 'text-gray-600' : 'text-neutral-400';
+  const textMuted = theme === 'light' ? 'text-gray-500' : 'text-neutral-600';
+  const cardBg = theme === 'light' ? 'bg-emerald-50 border-emerald-100' : 'bg-neutral-900/40 border-neutral-800';
+  const modalBg = theme === 'light' ? 'bg-white border-emerald-200' : 'bg-neutral-900 border-neutral-800';
+  const buttonSecondary = theme === 'light' ? 'bg-emerald-100 hover:bg-emerald-200 text-gray-700' : 'bg-neutral-800 hover:bg-neutral-700 text-neutral-100';
 
   // Calculate grid columns based on number of people
   const getGridCols = () => {
@@ -83,12 +92,12 @@ export function MyPeoplePage({ people, onUpdatePerson, onDeletePerson, onAddPers
     <div className="px-10 py-8">
       <div className="flex items-start justify-between mb-8">
         <div>
-          <h1 className="text-4xl font-semibold">My People</h1>
-          <p className="mt-2 text-base text-neutral-400">Manage your team and their access</p>
+          <h1 className={`text-4xl font-semibold ${textPrimary}`}>My People</h1>
+          <p className={`mt-2 text-base ${textSecondary}`}>Manage your team and their access</p>
         </div>
-        <button 
+        <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 px-6 py-3 rounded-xl text-base font-semibold"
+          className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 px-6 py-3 rounded-xl text-base font-semibold text-white"
         >
           <Plus className="h-5 w-5" />
           Add Person
@@ -97,14 +106,14 @@ export function MyPeoplePage({ people, onUpdatePerson, onDeletePerson, onAddPers
 
 
       {people.length === 0 ? (
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-16 text-center">
+        <div className={`rounded-2xl border ${cardBg} p-16 text-center`}>
           <div className="max-w-md mx-auto">
-            <Users className="h-16 w-16 text-neutral-600 mx-auto mb-4" />
-            <h2 className="text-2xl font-semibold mb-2">No people added yet</h2>
-            <p className="text-neutral-400 mb-6">Start building your team by adding family members, agents, coaches, and more.</p>
-            <button 
+            <Users className={`h-16 w-16 mx-auto mb-4 ${textMuted}`} />
+            <h2 className={`text-2xl font-semibold mb-2 ${textPrimary}`}>No people added yet</h2>
+            <p className={`${textSecondary} mb-6`}>Start building your team by adding family members, agents, coaches, and more.</p>
+            <button
               onClick={() => setShowModal(true)}
-              className="bg-emerald-600 hover:bg-emerald-500 px-6 py-3 rounded-xl text-base font-semibold"
+              className="bg-emerald-600 hover:bg-emerald-500 px-6 py-3 rounded-xl text-base font-semibold text-white"
             >
               Add Your First Person
             </button>
@@ -123,7 +132,7 @@ export function MyPeoplePage({ people, onUpdatePerson, onDeletePerson, onAddPers
             };
 
             if (cardStyle === 'glassmorphic') {
-              return <GlassmorphicCard {...commonProps} onPhotoUpload={handlePhotoUpload} />;
+              return <GlassmorphicCard {...commonProps} onPhotoUpload={handlePhotoUpload} theme={theme} />;
             }
             if (cardStyle === 'bubble') {
               return <BubbleCard {...commonProps} />;
@@ -157,15 +166,15 @@ export function MyPeoplePage({ people, onUpdatePerson, onDeletePerson, onAddPers
       {/* Delete Confirmation */}
       {deletingPerson && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-neutral-900 rounded-2xl border border-neutral-800 w-full max-w-md shadow-2xl p-6">
-            <h3 className="text-xl font-semibold mb-2">Remove {deletingPerson.name}?</h3>
-            <p className="text-neutral-400 mb-6">
+          <div className={`rounded-2xl border w-full max-w-md shadow-2xl p-6 ${modalBg}`}>
+            <h3 className={`text-xl font-semibold mb-2 ${textPrimary}`}>Remove {deletingPerson.name}?</h3>
+            <p className={`${textSecondary} mb-6`}>
               This person will be removed from your team. This action cannot be undone.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setDeletingPerson(null)}
-                className="flex-1 bg-neutral-800 hover:bg-neutral-700 text-neutral-100 px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors"
+                className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors ${buttonSecondary}`}
               >
                 Cancel
               </button>
