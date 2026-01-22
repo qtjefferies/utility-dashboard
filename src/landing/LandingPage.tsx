@@ -2,9 +2,25 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import StickyStory from '../components/landing/StickyStory';
+import WaitlistSection from '../components/landing/WaitlistSection';
+import ExitIntentPopup from '../components/landing/ExitIntentPopup';
+import FloatingCTA from '../components/landing/FloatingCTA';
+import PageLoader from '../components/landing/PageLoader';
+import ScrollProgress from '../components/landing/ScrollProgress';
 
 // Premium easing (typed as tuple for framer-motion)
 const easeOutExpo: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
+// Smooth scroll helper
+const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+  if (href.startsWith('#')) {
+    e.preventDefault();
+    const element = document.querySelector(href);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+};
 
 const navItems = [
   { label: 'About Us', href: '#about' },
@@ -47,6 +63,7 @@ function Navbar() {
             ))}
             <a
               href="#signup"
+              onClick={(e) => scrollToSection(e, '#signup')}
               className="px-5 py-2.5 bg-white text-black font-semibold rounded-full text-sm hover:bg-white/90 transition-colors"
             >
               Sign Up
@@ -86,7 +103,10 @@ function Navbar() {
                 <a
                   href="#signup"
                   className="block w-full text-center px-5 py-3 bg-white text-black font-semibold rounded-full text-base"
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={(e) => {
+                    scrollToSection(e, '#signup');
+                    setMobileMenuOpen(false);
+                  }}
                 >
                   Sign Up
                 </a>
@@ -213,7 +233,10 @@ function HeroSection() {
           variants={itemVariants}
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
-          <button className="group relative px-8 py-4 bg-white text-black font-semibold rounded-full overflow-hidden transition-transform hover:scale-105 active:scale-100">
+          <button
+            onClick={() => document.querySelector('#signup')?.scrollIntoView({ behavior: 'smooth' })}
+            className="group relative px-8 py-4 bg-white text-black font-semibold rounded-full overflow-hidden transition-transform hover:scale-105 active:scale-100"
+          >
             <span className="relative z-10">Get Started Free</span>
             <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 opacity-0 group-hover:opacity-100 transition-opacity" />
             <span className="absolute inset-0 flex items-center justify-center text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
@@ -258,43 +281,121 @@ function HeroSection() {
   );
 }
 
+const ctaContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const ctaItemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.8,
+      ease: easeOutExpo,
+    },
+  },
+};
+
 function CTASection() {
   return (
     <section className="relative py-32 bg-black overflow-hidden">
-      {/* Background gradient */}
+      {/* Animated background gradient */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 to-transparent" />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.2, ease: easeOutExpo }}
+          className="absolute inset-0 bg-gradient-to-t from-purple-900/20 to-transparent"
+        />
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 0.3 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.5, delay: 0.3 }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/20 rounded-full blur-[120px]"
+        />
       </div>
 
       <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.9, ease: easeOutExpo }}
+        variants={ctaContainerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
         className="relative z-10 max-w-4xl mx-auto px-6 text-center"
       >
-        <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
+        <motion.h2
+          variants={ctaItemVariants}
+          className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6"
+        >
           Ready to take control?
-        </h2>
-        <p className="text-xl text-white/60 mb-10 max-w-2xl mx-auto">
+        </motion.h2>
+        <motion.p
+          variants={ctaItemVariants}
+          className="text-xl text-white/60 mb-10 max-w-2xl mx-auto"
+        >
           Join thousands of athletes who are already building their financial
           future with our platform.
-        </p>
-        <button className="px-10 py-5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-full text-lg hover:shadow-lg hover:shadow-purple-500/25 transition-all hover:scale-105 active:scale-100">
+        </motion.p>
+        <motion.button
+          variants={ctaItemVariants}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => document.querySelector('#signup')?.scrollIntoView({ behavior: 'smooth' })}
+          className="px-10 py-5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-full text-lg hover:shadow-lg hover:shadow-purple-500/25 transition-shadow"
+        >
           Start Your Journey
-        </button>
+        </motion.button>
       </motion.div>
     </section>
   );
 }
 
 export default function LandingPage() {
+  const [isLoaded, setIsLoaded] = useState(false);
+
   return (
-    <main className="bg-black min-h-screen">
-      <Navbar />
-      <HeroSection />
-      <StickyStory />
-      <CTASection />
-    </main>
+    <>
+      {/* Page loader - shows on initial load */}
+      <PageLoader onComplete={() => setIsLoaded(true)} />
+
+      {/* Main content */}
+      <motion.main
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isLoaded ? 1 : 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-black min-h-screen"
+      >
+        {/* Scroll progress indicator */}
+        <ScrollProgress />
+
+        {/* Navigation */}
+        <Navbar />
+
+        {/* Page sections */}
+        <HeroSection />
+        <StickyStory />
+        <WaitlistSection />
+        <CTASection />
+
+        {/* Floating CTA - appears after scrolling past hero */}
+        <FloatingCTA
+          showAfter={800}
+          text="Get Started Free"
+          href="#signup"
+        />
+
+        {/* Exit intent popup - shows when user tries to leave */}
+        <ExitIntentPopup />
+      </motion.main>
+    </>
   );
 }
