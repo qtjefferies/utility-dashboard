@@ -8,6 +8,9 @@ export type AccessLevel = 'admin' | 'read-only' | 'none';
 export type PersonRole = 'Family' | 'Agent' | 'Deal Rep' | 'Coach' | 'Accountant' | 'Other';
 export type PaymentStatus = 'paid' | 'due' | 'estimated' | 'overdue';
 export type ComplianceStatus = 'all_clear' | 'pending' | 'warning' | 'violation';
+export type ComplianceItemStatus = 'overdue' | 'pending' | 'completed';
+export type ComplianceItemPriority = 'high' | 'medium' | 'low';
+export type ComplianceItemCategory = 'reporting' | 'contracts' | 'education' | 'disclosure' | 'approval' | 'other';
 export type ThemePreference = 'dark' | 'light';
 export type DateFormat = 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD';
 export type LanguageCode = 'en' | 'es' | 'fr';
@@ -56,6 +59,7 @@ export interface Person {
   phone?: string;
   access_level: AccessLevel;
   initials?: string;
+  photo_url?: string;
   notes?: string;
   created_at: Date;
   updated_at: Date;
@@ -118,10 +122,26 @@ export interface Compliance {
   updated_at: Date;
 }
 
+export interface ComplianceItem {
+  id: string;
+  athlete_id: string;
+  title: string;
+  description?: string;
+  due_date: Date;
+  status: ComplianceItemStatus;
+  priority: ComplianceItemPriority;
+  category: ComplianceItemCategory;
+  related_deal_id?: string;
+  completed_at?: Date;
+  created_at: Date;
+  updated_at: Date;
+}
+
 export interface UpcomingTask {
   id: string;
   athlete_id: string;
   label: string;
+  description?: string;
   due_date: Date;
   task_type?: string;
   related_deal_id?: string;
@@ -212,6 +232,15 @@ export interface ExpensesByCategory {
   total_expenses: number;
 }
 
+export interface ComplianceItemsSummary {
+  athlete_id: string;
+  total_items: number;
+  overdue_items: number;
+  pending_items: number;
+  completed_items: number;
+  high_priority_pending: number;
+}
+
 // API Request/Response types
 export interface CreateDealRequest {
   deal_name: string;
@@ -242,7 +271,28 @@ export interface CreatePersonRequest {
   phone?: string;
   access_level: AccessLevel;
   roles: PersonRole[];
+  photo_url?: string;
   notes?: string;
+}
+
+export interface CreateComplianceItemRequest {
+  title: string;
+  description?: string;
+  due_date: string;
+  status?: ComplianceItemStatus;
+  priority?: ComplianceItemPriority;
+  category: ComplianceItemCategory;
+  related_deal_id?: string;
+}
+
+export interface UpdateComplianceItemRequest {
+  title?: string;
+  description?: string;
+  due_date?: string;
+  status?: ComplianceItemStatus;
+  priority?: ComplianceItemPriority;
+  category?: ComplianceItemCategory;
+  related_deal_id?: string;
 }
 
 export interface UpdateUserSettingsRequest {

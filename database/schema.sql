@@ -16,6 +16,9 @@ CREATE TYPE access_level AS ENUM ('admin', 'read-only', 'none');
 CREATE TYPE person_role AS ENUM ('Family', 'Agent', 'Deal Rep', 'Coach', 'Accountant', 'Other');
 CREATE TYPE payment_status AS ENUM ('paid', 'due', 'estimated', 'overdue');
 CREATE TYPE compliance_status AS ENUM ('all_clear', 'pending', 'warning', 'violation');
+CREATE TYPE compliance_item_status AS ENUM ('overdue', 'pending', 'completed');
+CREATE TYPE compliance_item_priority AS ENUM ('high', 'medium', 'low');
+CREATE TYPE compliance_item_category AS ENUM ('reporting', 'contracts', 'education', 'disclosure', 'approval', 'other');
 CREATE TYPE notification_channel AS ENUM ('email', 'sms', 'push');
 CREATE TYPE theme_preference AS ENUM ('dark', 'light');
 CREATE TYPE date_format AS ENUM ('MM/DD/YYYY', 'DD/MM/YYYY', 'YYYY-MM-DD');
@@ -74,6 +77,7 @@ CREATE TABLE people (
     phone VARCHAR(20),
     access_level access_level NOT NULL DEFAULT 'none',
     initials VARCHAR(10),
+    photo_url TEXT,
     notes TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -144,11 +148,28 @@ CREATE TABLE compliance (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Compliance items (individual compliance tasks/requirements)
+CREATE TABLE compliance_items (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    athlete_id UUID NOT NULL REFERENCES athletes(id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    due_date DATE NOT NULL,
+    status compliance_item_status NOT NULL DEFAULT 'pending',
+    priority compliance_item_priority NOT NULL DEFAULT 'medium',
+    category compliance_item_category NOT NULL DEFAULT 'other',
+    related_deal_id UUID REFERENCES deals(id) ON DELETE SET NULL,
+    completed_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Upcoming tasks/reminders
 CREATE TABLE upcoming_tasks (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     athlete_id UUID NOT NULL REFERENCES athletes(id) ON DELETE CASCADE,
     label VARCHAR(255) NOT NULL,
+    description TEXT,
     due_date DATE NOT NULL,
     task_type VARCHAR(50), -- e.g., "deal", "tax", "compliance"
     related_deal_id UUID REFERENCES deals(id) ON DELETE CASCADE,
@@ -263,6 +284,13 @@ CREATE INDEX idx_upcoming_tasks_athlete_id ON upcoming_tasks(athlete_id);
 CREATE INDEX idx_upcoming_tasks_due_date ON upcoming_tasks(due_date);
 CREATE INDEX idx_upcoming_tasks_completed ON upcoming_tasks(is_completed);
 
+-- Compliance items indexes
+CREATE INDEX idx_compliance_items_athlete_id ON compliance_items(athlete_id);
+CREATE INDEX idx_compliance_items_status ON compliance_items(status);
+CREATE INDEX idx_compliance_items_due_date ON compliance_items(due_date);
+CREATE INDEX idx_compliance_items_priority ON compliance_items(priority);
+CREATE INDEX idx_compliance_items_athlete_status ON compliance_items(athlete_id, status);
+
 -- ============================================
 -- FUNCTIONS & TRIGGERS
 -- ============================================
@@ -299,6 +327,9 @@ CREATE TRIGGER update_bank_accounts_updated_at BEFORE UPDATE ON bank_accounts
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_connected_accounts_updated_at BEFORE UPDATE ON connected_accounts
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_compliance_items_updated_at BEFORE UPDATE ON compliance_items
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Function to auto-generate initials
@@ -391,13 +422,25 @@ GROUP BY athlete_id, category;
 
 -- View for expenses by category
 CREATE OR REPLACE VIEW expenses_by_category AS
-SELECT 
+SELECT
     athlete_id,
     category,
     SUM(ABS(amount)) as total_expenses
 FROM transactions
 WHERE type = 'expense'
 GROUP BY athlete_id, category;
+
+-- View for compliance items summary
+CREATE OR REPLACE VIEW compliance_items_summary AS
+SELECT
+    athlete_id,
+    COUNT(*) as total_items,
+    COUNT(*) FILTER (WHERE status = 'overdue') as overdue_items,
+    COUNT(*) FILTER (WHERE status = 'pending') as pending_items,
+    COUNT(*) FILTER (WHERE status = 'completed') as completed_items,
+    COUNT(*) FILTER (WHERE priority = 'high' AND status != 'completed') as high_priority_pending
+FROM compliance_items
+GROUP BY athlete_id;
 
 -- ============================================
 -- COMMENTS (Documentation)
@@ -412,3 +455,5 @@ COMMENT ON TABLE quarterly_tax_payments IS 'Quarterly estimated tax payment sche
 COMMENT ON TABLE user_settings IS 'User preferences and notification settings';
 COMMENT ON TABLE bank_accounts IS 'Connected bank accounts for transaction tracking';
 COMMENT ON TABLE connected_accounts IS 'Connected social media accounts';
+COMMENT ON TABLE compliance_items IS 'Individual compliance tasks and requirements for athletes';
+COMMENT ON COLUMN people.photo_url IS 'Profile photo URL for team member display';
