@@ -35,8 +35,8 @@ const benefits = [
   },
   {
     icon: Shield,
-    title: 'Free Forever',
-    description: 'Lock in free access as a founding member',
+    title: 'Priority Access',
+    description: 'Skip the line when we launch',
   },
   {
     icon: TrendingUp,
@@ -143,19 +143,19 @@ export default function WaitlistSection() {
               transition={{ delay: 0.6, duration: 0.6 }}
               className="flex items-center gap-4 pt-4"
             >
-              {/* Avatar stack */}
+              {/* Avatar stack with UTILITY letters */}
               <div className="flex -space-x-3">
-                {[1, 2, 3, 4, 5].map((i) => (
+                {['U', 'T', 'I', 'L', 'I', 'T', 'Y'].map((letter, i) => (
                   <div
                     key={i}
                     className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 border-2 border-black flex items-center justify-center text-white text-xs font-bold"
                   >
-                    {String.fromCharCode(64 + i)}
+                    {letter}
                   </div>
                 ))}
               </div>
               <p className="text-white/60 text-sm">
-                <span className="text-white font-semibold">2,400+</span> athletes already signed up
+                Be part of the athlete community taking control of their NIL
               </p>
             </motion.div>
           </motion.div>

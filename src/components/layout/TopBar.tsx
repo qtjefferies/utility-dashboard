@@ -15,8 +15,8 @@ interface TopBarProps {
 export function TopBar({ athlete, theme = 'dark' }: TopBarProps) {
   return (
     <div className={`sticky top-0 z-10 flex items-center justify-between border-b px-10 py-5 ${
-      theme === 'light' 
-        ? 'border-gray-200 bg-white' 
+      theme === 'light'
+        ? 'border-emerald-200 bg-stone-50'
         : 'border-neutral-900 bg-neutral-950'
     }`}>
       <div className={`text-base ${theme === 'light' ? 'text-gray-400' : 'text-neutral-500'}`}> </div>

@@ -31,8 +31,8 @@ export function Sidebar({ currentPage, onNavigate, onAIClick, theme = 'dark', co
 
   return (
     <aside className={`fixed left-0 top-0 w-72 border-r px-5 py-8 flex flex-col h-screen ${
-      theme === 'light' 
-        ? 'border-gray-200 bg-white' 
+      theme === 'light'
+        ? 'border-emerald-200 bg-stone-50'
         : 'border-neutral-800 bg-neutral-900/30'
     }`}>
       <div className={`mb-8 flex items-center gap-3 text-xl font-semibold ${

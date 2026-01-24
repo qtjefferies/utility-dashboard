@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Send, Sparkles, MessageCircle } from 'lucide-react';
+import { X, Send, Sparkles, MessageCircle, Maximize2, Minimize2 } from 'lucide-react';
 import { chat, checkOllamaStatus, generateSystemPrompt, Message } from '../services/ollama';
 
 interface FloatingAIAssistantProps {
@@ -19,20 +19,38 @@ interface ChatMessage {
   content: string;
 }
 
-const topQuestions = [
-  { emoji: '❓', text: 'What deals are hot in my area?', query: "What NIL deals are hot in my area right now?" },
-  { emoji: '🎯', text: 'Is this brand deal a good opportunity?', query: "I have a brand deal opportunity. Can you help me evaluate if it's a good opportunity?" },
-  { emoji: '📸', text: 'How should I price Instagram posts?', query: "How should I price my Instagram posts for brand deals?" }
-];
+type ConversationTab = 'Tax Planning' | 'Deal Analysis' | 'Compliance Check' | 'Growth Strategy';
+
+const tabs: ConversationTab[] = ['Tax Planning', 'Deal Analysis', 'Compliance Check', 'Growth Strategy'];
+
+const suggestionsByTab: Record<ConversationTab, string[]> = {
+  'Tax Planning': [
+    'How much tax should I save?',
+    'What deductions can I claim?',
+    'When are my quarterly taxes due?'
+  ],
+  'Deal Analysis': [
+    'Analyze my latest deal',
+    'What deals are trending?',
+    'How should I price my content?'
+  ],
+  'Compliance Check': [
+    'Am I NCAA compliant?',
+    'Can I accept this sponsorship?',
+    'What are the latest NIL rules?'
+  ],
+  'Growth Strategy': [
+    'How can I earn more?',
+    'Build my personal brand',
+    'Find more opportunities'
+  ]
+};
 
 export function FloatingAIAssistant({ userData }: FloatingAIAssistantProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      role: 'assistant',
-      content: `What's up ${userData.name.split(' ')[0]}! I'm Util, your AI assistant. I can help you with NIL deals, tax questions, financial planning, and more. What would you like to know?`
-    }
-  ]);
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  const [activeTab, setActiveTab] = useState<ConversationTab>('Tax Planning');
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [ollamaAvailable, setOllamaAvailable] = useState<boolean | null>(null);
@@ -58,9 +76,9 @@ export function FloatingAIAssistant({ userData }: FloatingAIAssistantProps) {
     }
   }, [isOpen]);
 
-  const handleQuestionClick = async (query: string) => {
+  const handleSuggestionClick = async (suggestion: string) => {
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', content: query }]);
+    setMessages(prev => [...prev, { role: 'user', content: suggestion }]);
     setIsLoading(true);
 
     try {
@@ -68,7 +86,7 @@ export function FloatingAIAssistant({ userData }: FloatingAIAssistantProps) {
       const apiMessages: Message[] = [
         { role: 'system', content: systemPrompt },
         ...messages.map(m => ({ role: m.role, content: m.content } as Message)),
-        { role: 'user', content: query }
+        { role: 'user', content: suggestion }
       ];
 
       setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
@@ -109,7 +127,7 @@ export function FloatingAIAssistant({ userData }: FloatingAIAssistantProps) {
     if (!input.trim() || isLoading) return;
 
     const userMessage = input.trim();
-    handleQuestionClick(userMessage);
+    handleSuggestionClick(userMessage);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -186,17 +204,25 @@ export function FloatingAIAssistant({ userData }: FloatingAIAssistantProps) {
         </button>
       )}
 
-      {/* Slide-out Panel */}
+      {/* Chat Panel */}
       {isOpen && (
         <div
-          className="fixed bottom-6 right-6 h-[750px] w-[380px] bg-neutral-900 border border-neutral-700 rounded-xl shadow-2xl z-50 flex flex-col"
+          className={`fixed bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 z-50 flex flex-col shadow-2xl border border-slate-700/50 ${
+            isFullScreen 
+              ? 'inset-0' 
+              : 'bottom-6 right-6 w-[500px] h-[700px] rounded-2xl'
+          }`}
           style={{ animation: 'slideUp 0.3s ease-out' }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-800 flex-shrink-0">
+          <div className={`flex items-center justify-between border-b border-slate-700/50 flex-shrink-0 ${
+            isFullScreen ? 'px-8 py-6' : 'px-5 py-4'
+          }`}>
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center overflow-hidden">
-                <svg viewBox="0 0 100 100" className="w-9 h-9">
+              <div className={`rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center overflow-hidden shadow-lg ${
+                isFullScreen ? 'h-14 w-14' : 'h-11 w-11'
+              }`}>
+                <svg viewBox="0 0 100 100" className={isFullScreen ? 'w-12 h-12' : 'w-9 h-9'}>
                   {/* Head */}
                   <ellipse cx="50" cy="52" rx="18" ry="20" fill="#8B6F47" />
                   
@@ -224,103 +250,190 @@ export function FloatingAIAssistant({ userData }: FloatingAIAssistantProps) {
                 </svg>
               </div>
               <div>
-                <h2 className="text-lg font-semibold">Util</h2>
-                <p className="text-xs text-neutral-400">
-                  {ollamaAvailable === false ? (
-                    <span className="text-amber-400">⚠ Ollama not detected</span>
-                  ) : ollamaAvailable === true ? (
-                    <span className="text-emerald-400">● Online</span>
-                  ) : (
-                    <span>Checking...</span>
-                  )}
+                <h2 className={`font-bold text-white ${isFullScreen ? 'text-2xl' : 'text-lg'}`}>Util</h2>
+                <p className={`text-emerald-400 font-medium ${isFullScreen ? 'text-sm' : 'text-xs'}`}>
+                  Always online
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="text-neutral-400 hover:text-neutral-200 transition-colors"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-
-          {/* Top Questions Section */}
-          <div className="px-6 py-4 border-b border-neutral-800 bg-neutral-950/50 flex-shrink-0">
-            <h3 className="text-sm font-semibold text-neutral-300 mb-3">Top Questions to Ask</h3>
-            <div className="space-y-2">
-              {topQuestions.map((question, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleQuestionClick(question.query)}
-                  disabled={isLoading}
-                  className="w-full text-left text-xs leading-snug text-neutral-200 py-2 px-2.5 bg-neutral-800/60 rounded-lg border border-neutral-700 hover:border-emerald-500/50 hover:bg-neutral-800 cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <span className="mr-1.5">{question.emoji}</span>
-                  <span className="inline-block w-[75%]">{question.text}</span>
-                </button>
-              ))}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsFullScreen(!isFullScreen)}
+                className="text-slate-400 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-lg"
+                title={isFullScreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+              >
+                {isFullScreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="text-slate-400 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-lg"
+              >
+                <X className={isFullScreen ? 'h-6 w-6' : 'h-5 w-5'} />
+              </button>
             </div>
           </div>
 
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3" style={{ overscrollBehavior: 'contain' }}>
-            {messages.map((message, idx) => (
-              <div
-                key={idx}
-                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+          {/* Tabs */}
+          <div className={`flex items-center gap-2 border-b border-slate-700/50 flex-shrink-0 overflow-x-auto ${
+            isFullScreen ? 'px-8 py-4' : 'px-4 py-3'
+          }`}>
+            {tabs.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-4 py-2 rounded-full font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+                  isFullScreen ? 'text-sm' : 'text-xs'
+                } ${
+                  activeTab === tab
+                    ? 'bg-slate-700 text-white shadow-lg'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                }`}
               >
-                <div
-                  className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${
-                    message.role === 'user'
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-neutral-800 text-neutral-100'
-                  }`}
-                >
-                  <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
-                </div>
-              </div>
+                {tab}
+              </button>
             ))}
+          </div>
 
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-neutral-800 rounded-2xl px-4 py-2.5">
-                  <div className="flex gap-1">
-                    <div className="w-2 h-2 bg-neutral-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                    <div className="w-2 h-2 bg-neutral-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                    <div className="w-2 h-2 bg-neutral-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                  </div>
+          {/* Messages */}
+          <div className={`flex-1 overflow-y-auto space-y-3 ${
+            isFullScreen ? 'px-8 py-6 space-y-4' : 'px-4 py-4'
+          }`} style={{ overscrollBehavior: 'contain' }}>
+            {messages.length === 0 ? (
+              <div className={`flex justify-start ${isFullScreen ? 'pt-4' : 'pt-2'}`}>
+                <div className={`rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center flex-shrink-0 ${
+                  isFullScreen ? 'h-10 w-10 mr-3' : 'h-8 w-8 mr-2'
+                }`}>
+                  <svg viewBox="0 0 100 100" className={isFullScreen ? 'w-8 h-8' : 'w-6 h-6'}>
+                    <ellipse cx="50" cy="52" rx="18" ry="20" fill="#8B6F47" />
+                    <rect x="36" y="47" width="11" height="9" fill="none" stroke="#1a1a1a" strokeWidth="2" rx="2" />
+                    <rect x="53" y="47" width="11" height="9" fill="none" stroke="#1a1a1a" strokeWidth="2" rx="2" />
+                  </svg>
+                </div>
+                <div className={`bg-slate-800 text-slate-100 rounded-2xl ${
+                  isFullScreen ? 'max-w-[70%] px-5 py-3.5' : 'max-w-[80%] px-4 py-2.5'
+                }`}>
+                  <p className={`whitespace-pre-wrap leading-relaxed ${isFullScreen ? 'text-base' : 'text-sm'}`}>
+                    Hey {userData.name.split(' ')[0]}! I'm Util, your personal NIL assistant. I can help you with tax planning, deal analysis, compliance questions, and growth strategies. What's on your mind?
+                  </p>
                 </div>
               </div>
+            ) : (
+              <>
+                {messages.map((message, idx) => (
+                  <div
+                    key={idx}
+                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    {message.role === 'assistant' && (
+                      <div className={`rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center flex-shrink-0 ${
+                        isFullScreen ? 'h-10 w-10 mr-3' : 'h-8 w-8 mr-2'
+                      }`}>
+                        <svg viewBox="0 0 100 100" className={isFullScreen ? 'w-8 h-8' : 'w-6 h-6'}>
+                          <ellipse cx="50" cy="52" rx="18" ry="20" fill="#8B6F47" />
+                          <rect x="36" y="47" width="11" height="9" fill="none" stroke="#1a1a1a" strokeWidth="2" rx="2" />
+                          <rect x="53" y="47" width="11" height="9" fill="none" stroke="#1a1a1a" strokeWidth="2" rx="2" />
+                        </svg>
+                      </div>
+                    )}
+                    <div
+                      className={`rounded-2xl ${
+                        isFullScreen ? 'max-w-[70%] px-5 py-3.5' : 'max-w-[80%] px-4 py-2.5'
+                      } ${
+                        message.role === 'user'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-slate-800 text-slate-100'
+                      }`}
+                    >
+                      <p className={`whitespace-pre-wrap leading-relaxed ${isFullScreen ? 'text-base' : 'text-sm'}`}>
+                        {message.content}
+                      </p>
+                    </div>
+                    {message.role === 'user' && (
+                      <div className={`rounded-full bg-slate-700 flex items-center justify-center flex-shrink-0 ${
+                        isFullScreen ? 'h-10 w-10 ml-3' : 'h-8 w-8 ml-2'
+                      }`}>
+                        <svg className={`text-white ${isFullScreen ? 'w-6 h-6' : 'w-5 h-5'}`} fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {isLoading && (
+                  <div className="flex justify-start">
+                    <div className={`rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center flex-shrink-0 ${
+                      isFullScreen ? 'h-10 w-10 mr-3' : 'h-8 w-8 mr-2'
+                    }`}>
+                      <svg viewBox="0 0 100 100" className={isFullScreen ? 'w-8 h-8' : 'w-6 h-6'}>
+                        <ellipse cx="50" cy="52" rx="18" ry="20" fill="#8B6F47" />
+                      </svg>
+                    </div>
+                    <div className={`bg-slate-800 rounded-2xl ${isFullScreen ? 'px-5 py-3.5' : 'px-4 py-2.5'}`}>
+                      <div className="flex gap-1.5">
+                        <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                        <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                        <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
 
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input */}
-          <div className="px-6 py-4 border-t border-neutral-800 flex-shrink-0 bg-neutral-950/50">
-            <form onSubmit={handleSubmit} className="flex gap-2">
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Type your question..."
-                rows={1}
-                disabled={ollamaAvailable === false || isLoading}
-                className="flex-1 bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-sm text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ minHeight: '40px', maxHeight: '100px' }}
-              />
+          {/* Bottom Section - Suggestions & Input */}
+          <div className={`border-t border-slate-700/50 flex-shrink-0 bg-slate-900/50 backdrop-blur-sm ${
+            isFullScreen ? 'px-8 py-6' : 'px-4 py-4'
+          }`}>
+            {/* Suggestions */}
+            <div className={isFullScreen ? 'mb-4' : 'mb-3'}>
+              <p className="text-xs text-slate-400 mb-2 uppercase tracking-wider">Try asking:</p>
+              <div className="flex flex-wrap gap-2">
+                {suggestionsByTab[activeTab].map((suggestion, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleSuggestionClick(suggestion)}
+                    disabled={isLoading}
+                    className={`bg-slate-800/70 hover:bg-slate-700 text-slate-200 rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-slate-600/50 ${
+                      isFullScreen ? 'px-4 py-2 text-sm' : 'px-3 py-1.5 text-xs'
+                    }`}
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Input */}
+            <form onSubmit={handleSubmit} className="flex gap-2 items-end">
+              <div className="flex-1 relative">
+                <textarea
+                  ref={inputRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Ask me anything about NIL..."
+                  rows={1}
+                  disabled={ollamaAvailable === false || isLoading}
+                  className={`w-full bg-slate-800 border border-slate-600 rounded-2xl text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/50 resize-none disabled:opacity-50 disabled:cursor-not-allowed ${
+                    isFullScreen ? 'px-5 py-3.5 text-base' : 'px-4 py-2.5 text-sm'
+                  }`}
+                  style={{ minHeight: isFullScreen ? '52px' : '42px', maxHeight: '120px' }}
+                />
+              </div>
               <button
                 type="submit"
                 disabled={!input.trim() || isLoading || ollamaAvailable === false}
-                className="bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl px-4 py-2.5 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                className={`bg-emerald-500 hover:bg-emerald-400 text-white rounded-2xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 shadow-lg hover:shadow-emerald-500/50 ${
+                  isFullScreen ? 'p-3.5' : 'p-2.5'
+                }`}
               >
-                <Send className="h-4 w-4" />
+                <Send className={isFullScreen ? 'h-6 w-6' : 'h-5 w-5'} />
               </button>
             </form>
-            <p className="text-xs text-neutral-500 mt-2 text-center">
-              Press Enter to send
-            </p>
           </div>
         </div>
       )}

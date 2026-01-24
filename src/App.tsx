@@ -78,7 +78,7 @@ export default function App() {
   }
 
   return (
-    <div className={`min-h-screen text-base ${theme === 'light' ? 'bg-gray-50 text-gray-900' : 'bg-neutral-950 text-neutral-100'}`}>
+    <div className={`min-h-screen text-base ${theme === 'light' ? 'bg-stone-50 text-gray-900' : 'bg-neutral-950 text-neutral-100'}`}>
       <Sidebar
         currentPage={currentPage}
         onNavigate={setCurrentPage}
@@ -86,7 +86,7 @@ export default function App() {
         theme={theme}
         complianceItems={complianceItems}
       />
-      <main className={`ml-72 min-h-screen ${theme === 'light' ? 'bg-gray-50' : 'bg-neutral-950'}`}>
+      <main className={`ml-72 min-h-screen ${theme === 'light' ? 'bg-stone-50' : 'bg-neutral-950'}`}>
         <TopBar athlete={homeData.athlete} theme={theme} />
         {currentPage === 'home' && <HomePage theme={theme} onAIClick={handleAIClick} />}
         {currentPage === 'deals' && <DealsPage deals={deals} onUpdateDeal={updateDeal} onDeleteDeal={deleteDeal} onAddDeal={addDeal} theme={theme} />}
